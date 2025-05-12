@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Education</title>
+
+    <script type="text/javascript" th:src="@{/resources/js/papaparse.min.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/js/pdfmake.min.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/js/vfs_fonts.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/js/pdf-utils.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/js/csv-utils.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/js/report.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/vfs/noto-sans-english.js}"></script>
+    <script type="text/javascript" th:src="@{/resources/vfs/noto-sans-bengali.js}"></script>
+</head>
+<body>
+<h4 layout:fragment="content-header">Student Report Criteria</h4>
+<div id="content" layout:fragment="content">
+    <form @submit.prevent="onSubmit">
+        <div class="card card-mb-3 mb-4 border-blue-100">
+            <h5 class="card-header text-primary d-flex justify-content-between">Student Criteria</h5>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Report Type:</label>
+                        <select class="form-select" v-model="criteria.reportType">
+                            <option th:each="type : ${reportType}" th:value="${type}" th:text="${type.title}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status:</label>
+                        <select class="form-select" v-model="criteria.status">
+                            <option value="0"></option>
+                            <option th:each="status : ${studentStatusList}" th:value="${status.title}"
+                                    th:text="${status.title}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label  me-2">Gender:</label><br>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" v-model="criteria.gender" value="Male"
+                                   id="male">
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" v-model="criteria.gender" value="Female"
+                                   id="female">
+                            <label class="form-check-label" for="female">Female</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Institution:</label>
+                        <select class="form-select" v-model="criteria.institution">
+                            <option value="0"></option>
+                            <option th:each="institution : ${institutions}" th:value="${institution.id}"
+                                    th:text="${institution.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Class:</label>
+                        <select class="form-select" v-model="criteria.cls">
+                            <option value="0"></option>
+                            <option th:each="cls : ${classes}" th:value="${cls.id}" th:text="${cls.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Session:</label>
+                        <input type="text" class="form-control" v-model="criteria.session" placeholder="Session">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Residence:</label>
+                        <select class="form-select" v-model="criteria.residence">
+                            <option value="0"></option>
+                            <option th:each="residence : ${residences}" th:value="${residence.id}"
+                                    th:text="${residence.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Religion:</label>
+                        <select class="form-select" v-model="criteria.religion">
+                            <option value="0"></option>
+                            <option th:each="religion : ${religions}" th:value="${religion.title}"
+                                    th:text="${religion.title}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Community:</label>
+                        <select class="form-select" v-model="criteria.community">
+                            <option value="0"></option>
+                            <option th:each="community : ${communities}" th:value="${community.title}"
+                                    th:text="${community.title}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="district">District:</label>
+                        <select class="form-select" id="district" v-model="criteria.district" @change="loadUpazilas">
+                            <option value="0"></option>
+                            <option th:each="district : ${districts}" th:value="${district.name}"
+                                    th:text="${district.name}" th:data-id="${district.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="upazila">Upazila:</label>
+                        <select class="form-select" id="upazila" v-model="criteria.upazila" @change="loadUnions">
+                            <option value="0"></option>
+                            <option class="form-select" v-for="upazila in upazilaList" :value="upazila.name" :data-id="upazila.id">
+                                {{upazila.name}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="union">Union:</label>
+                        <select class="form-select" id="union" v-model="criteria.union">
+                            <option value="0"></option>
+                            <option class="form-select" v-for="union in unionList" :value="union.name">{{union.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Report Format:</label><br>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" v-model="criteria.reportFormat" th:value="HTML"
+                                   id="html">
+                            <label class="form-check-label" for="html">HTML</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" v-model="criteria.reportFormat" th:value="PDF"
+                                   id="pdf">
+                            <label class="form-check-label" for="pdf">PDF</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" v-model="criteria.reportFormat" th:value="CSV"
+                                   id="csv">
+                            <label class="form-check-label" for="csv">CSV</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed-btn-section">
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </div>
+    </form>
+</div>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const loggedInUser = /*[[${loggedInUser}]]*/'';
+        const upazilasByDistrict = /*[[${T(bd.org.quantum.education.common.Routes).UPAZILAS}]]*/'';
+        const unionsByUpazila = /*[[${T(bd.org.quantum.education.common.Routes).UNIONS}]]*/'';
+        const reportUrl = /*[[${T(bd.org.quantum.education.common.Routes).STUDENT_REPORT}]]*/'';
+        const reportQuantaaList = /*[[${T(bd.org.quantum.education.common.ReportType).QUANTAA_LIST}]]*/'';
+        /*]]>*/
+
+        const app = {
+            data() {
+                return {
+                    criteria: {
+                        reportType: 'QUANTAA_LIST',
+                        session: null,
+                        gender: null,
+                        institution: null,
+                        cls: null,
+                        residence: null,
+                        religion: '0',
+                        community: '0',
+                        status: '0',
+                        district: '0',
+                        upazila: '0',
+                        union: '0',
+                        reportFormat: 'HTML',
+                    },
+                    reportResult: {},
+                    loading: true,
+                    upazilaList: [],
+                    unionList: [],
+                    references: [],
+                    searchInput: '',
+                    searchIndex: 0,
+                    options: [],
+                    showSearchList: false,
+                    selected: {},
+                }
+            },
+
+            methods: {
+                onSubmit(e) {
+                    let format = this.criteria.reportFormat
+                    let url = reportUrl + '?format=' + format
+                    let newTab = window.open('', '_blank')
+                    if (format === 'HTML') {
+                        postForText(url, this.criteria).then(response => {
+                            newTab.document.write(response);
+                        })
+                    } else {
+                        postForJson(url.replace('CSV', 'PDF'), this.criteria).then(response => {
+                            this.getReport(response, this.criteria, format)
+                        })
+                    }
+                },
+
+                loadUpazilas() {
+                    const district = document.getElementById('district');
+                    const url = upazilasByDistrict + '?district=' + district.options[district.selectedIndex].dataset.id;
+                    fetch(url).then(response => response.json()).then(data => {
+                        this.upazilaList = data ? data : [];
+                    });
+                },
+
+                loadUnions() {
+                    const upazila = document.getElementById('upazila');
+                    let url = unionsByUpazila + '?upazila=' + upazila.options[upazila.selectedIndex].dataset.id;
+                    fetch(url).then(response => response.json()).then(data => {
+                        this.unionList = data ? data : [];
+                    });
+                },
+
+                getReport(reportData, criteria, format) {
+                    if (reportQuantaaList === criteria.reportType) {
+                        if (format === 'PDF') {
+                            generateStudentListPdfReport(reportData);
+                        } else {
+                            generateStudentListCsvReport(reportData);
+                        }
+                    }
+                }
+            }
+        }
+
+        Vue.createApp(app).mount('#content');
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="#{examination.exam.marks.entry.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${examMarks}" th:action="${entryUrl}" method="post">
+        <div class="card">
+            <div class="card-header card-header-custom text-primary d-flex">
+                <h5 class="me-4">Exam Information</h5>
+                <span th:if="${#fields.hasErrors('academicClass')}" th:errorclass="error"
+                      th:errors="*{academicClass}"></span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label class="form-label red-star col-2">Institution:</label>
+                    <div class="col-10">
+                        <select class="form-select" onchange="loadClassInfo(this.value)">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:value="${institution.id}"
+                                    th:text="${institution.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="form-label red-star col-2">Class:<span class="text-danger">*</span></label>
+                    <div class="col-10">
+                        <select class="form-select" id="classInfo" th:field="*{academicClass.id}"
+                                onchange="loadSubject(this.value)" disabled>
+                            <option value="0">-Select Institution First-</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('academicClass.id')}" th:errorclass="error"
+                              th:errors="*{academicClass.id}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="form-label red-star col-2">Subject:<span class="text-danger">*</span></label>
+                    <div class="col-10">
+                        <select class="form-select" id="subject" th:field="*{subject.id}" disabled>
+                            <option value="0">-Select Class First-</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('subject.id')}" th:errorclass="error"
+                              th:errors="*{subject.id}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="form-label red-star col-2">Exam:<span class="text-danger">*</span></label>
+                    <div class="col-10">
+                        <select class="form-select" th:field="*{exam.id}">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="exam : ${examList}" th:value="${exam.id}" th:text="${exam.name}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('exam.id')}" th:errorclass="error"
+                              th:errors="*{exam.id}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary mt-3" type="submit">Save</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function loadClassInfo(id) {
+            const classInfo = document.getElementById("classInfo");
+            if (id === '0') {
+                classInfo.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classInfo.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classInfoList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classInfo.removeAttribute('disabled');
+                    document.getElementById("classInfo").innerHTML = data;
+                });
+            }
+        }
+
+        function loadSubject(id) {
+            const subject = document.getElementById("subject");
+            if (id === '0') {
+                subject.innerHTML = "<option value=''>-Select Class First-</option>";
+                subject.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${subjectList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    subject.removeAttribute('disabled');
+                    document.getElementById("subject").innerHTML = data;
+                });
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="#{class.promotion.subject.assign.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${academicClass}" th:action="${entryUrl}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Class
+                Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Institution:</label>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.institution.name}" disabled>
+                        <input type="hidden" th:field="*{id}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Class:</label>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.clazz.name}" disabled>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Group:</label>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.classGroup}" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Section:</label>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.section}" disabled>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Session:(Year)</label>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.session}" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Subject
+                Assign <span class="text-danger">*</span></h5>
+            <div class="card-body">
+                <div class="row mb-12">
+                    <div class="col-md-12">
+                        <table class="table table-bordered mb-0" id="subjectDetailsTable" th:if="${academicClass.status != 2 && academicClass.status != 3}">
+                            <thead>
+                            <tr class="table-secondary">
+                                <th class="col-4">Subject Name</th>
+                                <th class="col-3">Subject Type</th>
+                                <th class="col-4">Remarks</th>
+                                <th class="col-1">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="subjectDetailsRow" th:each="subjectDetails : ${academicClass.subjectDetailsList}"
+                                th:id="|subjectDetailsRow${subjectDetailsStat.index}|">
+                                <td>
+                                    <select class="form-control"
+                                            th:field="*{subjectDetailsList[__${subjectDetailsStat.index}__].subject.id}">
+                                        <option value="0">-Please Select-</option>
+                                        <option th:each="subject : ${subjectList}" th:value="${subject.id}"
+                                                th:text="${subject.name}"></option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control"
+                                            th:field="*{subjectDetailsList[__${subjectDetailsStat.index}__].subjectType.id}">
+                                        <option value="0">-Please Select-</option>
+                                        <option th:each="subjectType : ${subjectTypeList}" th:value="${subjectType.id}"
+                                                th:text="${subjectType.name}"></option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control"
+                                           th:field="*{subjectDetailsList[__${subjectDetailsStat.index}__].remarks}" >
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-danger bi-trash-fill me-1"
+                                                th:attr="data-index=${subjectDetailsStat.index}"
+                                                onclick="deleteRow(this)"></button>
+                                        <div class="dropdown">
+                                            <button type="button"
+                                                    th:id="|dropdown${subjectDetailsStat.index}|"
+                                                    class="btn btn-light bi-three-dots-vertical"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false"></button>
+                                            <ul class="dropdown-menu dropdown-menu-end end-0">
+                                                <li class="dropdown-item btn" onclick="addRow(this, 'above')"
+                                                    th:attr="data-index=${subjectDetailsStat.index}">
+                                                    <span>Add row above</span>
+                                                </li>
+                                                <li class="dropdown-item btn" onclick="addRow(this, 'below')"
+                                                    th:attr="data-index=${subjectDetailsStat.index}">
+                                                    <span>Add row below</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        </tbody>
+                        <span th:if="${#fields.hasErrors('institution')}" th:errorclass="error"
+                              th:errors="*{institution}"></span>
+
+                        <table class="table table-bordered mb-0" th:if="${academicClass.status == 2 || academicClass.status == 3}">
+                            <thead>
+                            <tr class="table-secondary">
+                                <th class="col-4">Subject Name</th>
+                                <th class="col-3">Subject Type</th>
+                                <th class="col-4">Remarks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="subjectDetailsRow" th:each="subjectDetails : ${academicClass.subjectDetailsList}">
+                                <td>
+                                    <input class="form-control" th:value="${academicClass.subjectDetailsList[__${subjectDetailsStat.index}__].subject.name}" disabled>
+                                </td>
+                                <td>
+                                    <input class="form-control" th:value="${academicClass.subjectDetailsList[__${subjectDetailsStat.index}__].subjectType.name}" disabled>
+                                </td>
+                                <td>
+                                    <input class="form-control" th:value="${academicClass.subjectDetailsList[__${subjectDetailsStat.index}__].remarks}" disabled>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary me-2 mb-4" th:if="${academicClass.status != 2 && academicClass.status != 3}" name="action" th:value="${academicClass.status == 0} ? 'new' : 'update'" th:text="${academicClass.status == 0} ? 'Save' : 'Update'"></button>
+        <button type="submit" class="btn btn-primary mb-4" name="action" value="submit" th:if="${academicClass.status == 1}">Submit</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function createEmptyRow() {
+            const subjectList = /*[[${subjectList}]]*/null;
+            const subjectTypeList = /*[[${subjectTypeList}]]*/null;
+
+            const rows = document.querySelectorAll('.subjectDetailsRow');
+            const lastIndex = rows.length;
+
+            let subjectOption = `<option value="">-Please Select-</option>`;
+            let subjectTypeOption = `<option value="">-Please Select-</option>`;
+
+            for (let subject of subjectList) {
+                subjectOption += `<option value='${subject.id}'>${subject.name}</option>`;
+            }
+
+            for (let subjectType of subjectTypeList) {
+                subjectTypeOption += `<option value='${subjectType.id}'>${subjectType.name}</option>`;
+            }
+
+            const rowElement = document.createElement('tr');
+            rowElement.setAttribute('id', `subjectDetailsRow${lastIndex}`);
+            rowElement.classList.add('subjectDetailsRow');
+
+            rowElement.innerHTML = `<td>
+                            <select class="form-control" name="subjectDetailsList[${lastIndex}].subject.id">${subjectOption}</select>
+                        </td>
+                        <td>
+                            <select class="form-control" name="subjectDetailsList[${lastIndex}].subjectType.id">${subjectTypeOption}</select>
+                        </td>
+                        <td>
+                            <input class="form-control" name="subjectDetailsList[${lastIndex}].remarks}" data-index="${lastIndex}">
+                        </td><td>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-danger bi-trash-fill me-1" data-index="${lastIndex}" onclick="deleteRow(this)"></button>
+                                <div class="dropdown">
+                                    <button type="button"
+                                            id="dropdown${lastIndex}"
+                                            class="btn btn-light bi-three-dots-vertical"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"></button>
+                                    <ul class="dropdown-menu dropdown-menu-end end-0">
+                                        <li class="dropdown-item btn" onclick="addRow(this, 'above')" data-index="${lastIndex}">
+                                            <span>Add row above</span>
+                                        </li>
+                                        <li class="dropdown-item btn" onclick="addRow(this, 'below')" data-index="${lastIndex}">
+                                            <span>Add row below</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>`;
+            whatNext(rowElement.querySelector('input'));
+
+            new BSN.Dropdown(rowElement.querySelector(`#dropdown${lastIndex}`));
+
+            return rowElement;
+        }
+
+        function addDefaultEmptyRow() {
+            const row = createEmptyRow();
+            const body = document.querySelector('#subjectDetailsTable').tBodies[0];
+            body.appendChild(row);
+            reindex();
+        }
+
+        function addRow(el, where) {
+            const body = document.querySelector('#subjectDetailsTable').tBodies[0];
+            const currentRow = document.querySelector(`#subjectDetailsRow${el.dataset.index}`);
+            const newRow = createEmptyRow();
+
+            if (where === 'above') {
+                body.insertBefore(newRow, currentRow);
+            } else {
+                const rows = document.querySelectorAll('.subjectDetailsRow');
+                if (+el.dataset.index === rows.length - 1) {
+                    addDefaultEmptyRow();
+                } else {
+                    body.insertBefore(newRow, currentRow.nextSibling);
+                }
+            }
+            reindex();
+        }
+
+        function deleteRow(el) {
+            document.querySelector(`#subjectDetailsRow${el.dataset.index}`).remove();
+            reindex();
+        }
+
+        function reindex() {
+            const rows = document.querySelectorAll('.subjectDetailsRow');
+
+            let index = 0;
+            for (const row of rows) {
+                row.setAttribute('id', `subjectDetailsRow${index}`);
+                row.querySelectorAll('select')[0].name = `subjectDetailsList[${index}].subject.id`;
+                row.querySelectorAll('select')[1].name = `subjectDetailsList[${index}].subjectType.id`;
+                row.querySelector('input').name = `subjectDetailsList[${index}].remarks`;
+                row.querySelector('input').dataset.index = `${index}`;
+
+                const deleteBtn = row.querySelector('.bi-trash-fill');
+                deleteBtn.dataset.index = `${index}`;
+                deleteBtn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
+
+                const addRow = row.querySelector('.bi-three-dots-vertical');
+                addRow.setAttribute('id', `dropdown${index}`);
+
+                const addRowMenu = row.querySelectorAll('.dropdown-item');
+                addRowMenu[0].dataset.index = `${index}`;
+                addRowMenu[1].dataset.index = `${index}`;
+
+                index++;
+            }
+        }
+
+        function whatNext(el) {
+            el.addEventListener('keydown', (e) => {
+                if (e.keyCode === 9) {
+                    const rows = document.querySelectorAll('.subjectDetailsRow');
+                    if (+el.dataset.index === rows.length - 1) {
+                        addDefaultEmptyRow();
+                    }
+                }
+            })
+        }
+
+        (() => {
+            const rows = document.querySelectorAll('.subjectDetailsRow');
+            for(const row of rows){
+                whatNext(row.querySelector('input'));
+            }
+
+            if (!rows || rows.length <= 0) {
+                addDefaultEmptyRow();
+            }
+            reindex();
+        })();
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header" th:text="${guardian.id > 0 ? 'Update Guardian Information' : 'Guardian Information Entry'}"></h4>
+<th:block layout:fragment="content">
+    <form class="position-relative" th:action="${entryUrl}" th:object="${guardian}" method="post">
+        <input type="hidden" id="guardianRowId" th:field="*{id}">
+        <input type="hidden" id="imagePath" th:field="*{imagePath}">
+
+        <div class="row mb-3">
+            <div class="col-3">
+                <div class="mb-2">
+                    <select class="form-control" id="relation" th:field="*{relation}" th:disabled="${guardian.id == null}">
+                        <option value="0">-- Relation with Student --</option>
+                        <option th:each="relation : ${relations}" th:value="${relation.title}"
+                                th:text="${relation.title}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('relation')}" th:errorclass="error" th:errors="*{relation}"></span>
+                </div>
+                <div class="text-center" id="guardianImage">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#imageModal" th:disabled="${guardian.id == null}">
+                        <img th:id="formImageOld" th:src="@{#}" th:if="${guardian.imagePath != '' && guardian.imagePath != null}" alt="available" style="width: 36mm; height: 44mm"/>
+                        <img th:id="formImageMale" th:unless="${guardian.imagePath != '' && guardian.imagePath != null}" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail" style="width: 36mm; height: 44mm"/>
+                    </button>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="row mb-2">
+                    <div class="input-group">
+                        <input class="form-control student-search" id="studentSearch"
+                               placeholder="Search by name or quantaa ID"
+                               autocomplete="off"
+                               data-search-url="/admission/get-student-by-name-or-quanta-id?nameOrQuantaaId="
+                               th:disabled="${guardian.id != null}">
+                        <span class="input-group-text" th:disabled="${guardian.id != null}"><i class="bi bi-search"></i></span>
+                        <span onclick="clearStudent()" class="input-group-text rounded-end" role="button" style="cursor:pointer;">Clear</span>
+                    </div>
+                    <span th:if="${#fields.hasErrors('student')}" th:errorclass="error" th:errors="*{student}"></span>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <img th:id="image" alt="image" style="width: 38mm; height: 46mm; border: 2px solid #333; display: none"/>
+                    </div>
+                    <div class="col-9">
+                        <div class="row mb-1">
+                            <div class="fw-bold" id="studentInfo"></div>
+                            <input type="hidden" id="studentRowId" th:field="*{student.id}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h5 class="card-header text-primary">Guardian Information</h5>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label" for="name_en">Name (English):<span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" id="name_en" th:field="*{nameEn}">
+                        <span th:if="${#fields.hasErrors('nameEn')}" th:errorclass="error" th:errors="*{nameEn}"></span>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="name_bn">Name (Bangla):<span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" id="name_bn" th:field="*{nameBn}">
+                        <span th:if="${#fields.hasErrors('nameBn')}" th:errorclass="error" th:errors="*{nameBn}"></span>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label class="form-label">Indentity Type:</label>
+                        <div>
+                            <input class="form-check-input me-1" id="nid" th:field="*{indentityType}" type="radio" value="NID" checked>
+                            <label class="form-check-label" for="nid">NID</label>
+                            <input class="form-check-input me-1 ms-3" id="birth-certificate" th:field="*{indentityType}" type="radio" value="Birth Certificate">
+                            <label class="form-check-label" for="birth-certificate">Birth Certificate</label>
+                            <input class="form-check-input me-1 ms-3" id="passport" th:field="*{indentityType}" type="radio" value="Passport">
+                            <label class="form-check-label" for="passport">Passport</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="docReg">Indentity Number:<span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" id="docReg" th:field="*{indentityNumber}">
+                        <span th:if="${#fields.hasErrors('indentityNumber')}" th:errorclass="error" th:errors="*{indentityNumber}"></span>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label class="form-label" for="primaryPhone">Primary Phone:<span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" id="primaryPhone" th:field="*{primaryPhone}">
+                        <span th:if="${#fields.hasErrors('primaryPhone')}" th:errorclass="error" th:errors="*{primaryPhone}"></span>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="secondaryPhone">Secondary Phone:</label>
+                        <input class="form-control" type="text" id="secondaryPhone" th:field="*{secondaryPhone}">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label class="form-label" for="email">E-mail:</label>
+                        <input class="form-control" type="text" id="email" th:field="*{email}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="nationality">Nationality:</label>
+                        <select class="form-control" id="nationality" th:field="*{nationality}">
+                            <option value="0">Bangladesh</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="imageModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Upload Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img th:id="modalImageOld" th:src="@{#}" th:if="${guardian.imagePath != '' && guardian.imagePath != null}" th:high="110" th:width="100"/>
+                        <img th:id="modalImageMale" th:unless="${guardian.imagePath != '' && guardian.imagePath != null}" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail" th:high="110" th:width="100"/>
+                        <img th:id="newImageData" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail avatar" th:high="110" th:width="100"/>
+                        <br>
+                        <br>
+                        <input class="form-control" id="modalImg" type="file" onchange="convertImgToBase64(event)">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3 mb-3" name="action" th:value="${guardian.id == null ? 'new' : 'update'}"
+                th:text="${guardian.id == null ? 'Save' : 'Update'}"></button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function renderStudent(el, student) {
+            return `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div>${student.applicant.nameEn} - ${student.studentId}</div>
+                        <div>${student.applicant.nameBn}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectStudent(el, student) {
+            loadImage(student);
+            document.querySelector('#studentInfo').innerHTML = student.studentInfo;
+            document.querySelector('#studentRowId').value = student.id;
+            document.querySelector('.student-search').value = "";
+        }
+
+        function clearStudent() {
+            const id = /*[[${guardian.id}]]*/'';
+            if (!id){
+                document.querySelector('.student-search').value = "";
+                document.querySelector('#studentInfo').innerHTML = "";
+                document.querySelector('#studentRowId').value = "";
+                document.querySelector('.student-search').focus();
+                document.querySelector('#image').style.display = 'none';
+            }
+        }
+
+        function loadImage(student) {
+            const path = student.applicant.imagePath;
+            const url = '/admission/applicant/image/download';
+            const dummy_male = '/resources/img/dummy_male.jpg';
+            const dummy_female = '/resources/img/dummy_female.jpg';
+
+            if (path) {
+                fetch(generateRequestURL(url, {path: path}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.querySelector('#image').src = image.data;
+                    })
+            } else {
+                const gender = student.applicant.gender;
+                let imagePath;
+                if (gender === 'Male') {
+                    imagePath = dummy_male;
+                } else {
+                    imagePath = dummy_female;
+                }
+                document.querySelector('#image').src = imagePath;
+            }
+            document.querySelector('#image').style.display = 'block';
+        }
+
+        function uploadImage() {
+            let image = {};
+            const id = document.getElementById('guardianRowId').value;
+            const applicant = /*[[${guardian.student.applicant}]]*/'';
+            const relation = /*[[${guardian.relation}]]*/'';
+            image.objId = id;
+            image.data = document.getElementById('newImageData').src;
+            image.folder = 'applicant/' + applicant.id;
+            image.name = applicant.id + '_' + relation.toLowerCase() + "_" + Date.now();
+
+            let url = '/admission/guardian/image/upload';
+
+            postForJson(url, image).then(response => {
+                if(response){
+                    const path = /*[[${guardian.imagePath}]]*/ ''
+                    if (path) {
+                        document.getElementById('formImageOld').src = response.data;
+                    } else {
+                        document.getElementById('formImageMale').src = response.data;
+                    }
+                    document.getElementById('imagePath').value = response.path;
+                }
+            }).catch((error) => {
+                console.error(error)
+            })
+
+            new BSN.Modal('#imageModal').hide();
+        }
+
+        function convertImgToBase64(event) {
+            let file = event.target.files[0];
+            getBase64(file).then(data => {
+                document.getElementById('newImageData').src = data;
+            })
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            })
+        }
+
+        (() => {
+            const url = '/admission/guardian/image/download';
+            const student = /*[[${guardian.student}]]*/'';
+            const guardianImagePath = /*[[${guardian.imagePath}]]*/ '';
+
+            if (student.id !== null) {
+                selectStudent(null, student);
+            }else {
+                document.querySelector('#studentSearch').focus();
+            }
+
+            if (guardianImagePath !== '' && guardianImagePath !== null) {
+                fetch(generateRequestURL(url, {path: guardianImagePath}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.getElementById('formImageOld').src = image.data
+                        document.getElementById('modalImageOld').src = image.data
+                    })
+            }
+
+            new AutoComplete(document.querySelector('#studentSearch'), renderStudent, selectStudent);
+        })();
+    </script>
+</th:block>
+</body>
+</html>

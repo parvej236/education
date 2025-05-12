@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Seat Assignment</h4>
+<th:block layout:fragment="content">
+    <form th:action="${entryUrl}" th:object="${seatBookingLog}" method="post">
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Seat</h5>
+            <div class="card-body">
+                <div class="row mb-1">
+                    <div class="col-md-3">
+                        <label class="form-label" for="seatCode">Seat Code:</label>
+                        <input id="seatCode" class="form-control" type="text" readonly th:field="*{seat.seatCode}">
+                        <input id="bookingId" type="hidden" th:field="*{id}">
+                        <input id="seatId" type="hidden" th:field="*{seat.id}">
+                        <input type="hidden" id="student-row-id" th:field="*{studentRowId}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="roomCode">Room Code:</label>
+                        <input id="roomCode" class="form-control" type="text" readonly th:field="*{seat.room.code}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="hallName">Hall Name:</label>
+                        <input id="hallName" class="form-control" type="text" readonly
+                               th:field="*{seat.room.hall.name}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="residenceName">Residence Name:</label>
+                        <input id="residenceName" class="form-control" type="text" readonly
+                               th:field="*{seat.room.hall.residence.name}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Student</h5>
+            <div class="card-body">
+                <div class="row mb-3 d-flex justify-content-start align-items-center">
+                    <label class="col-lg-2 form-label" for="student">Search Student:</label>
+                    <div class="col-lg-10">
+                        <div class="input-group">
+                            <input class="form-control student-search" id="student"
+                                   placeholder="Search by name or quantaa id"
+                                   autocomplete="off"
+                                   data-search-url="/admission/get-student-by-name-or-quanta-id?nameOrQuantaaId="
+                                   autofocus>
+                            <span class="input-group-text" role="button"><i class="bi bi-search"></i></span>
+                            <span class="input-group-text rounded-end" role="button"
+                                  onclick="clearStudent()">Clear</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentName">Student Name:</label>
+                        <input class="form-control" id="studentName" th:field="*{studentName}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentId">Quantaa ID:<span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input class="form-control" id="studentId" th:field="*{studentId}" readonly>
+                            <span class="input-group-text rounded-end" onclick="openApplicantDetails()" role="button">Details</span>
+                        </div>
+                        <span th:if="${#fields.hasErrors('studentId')}" th:errorclass="error" th:errors="*{studentId}"></span>
+                    </div>
+                </div>
+                <div class="row mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label" for="institution">Institution:</label>
+                        <input class="form-control" id="institution" th:field="*{institution}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentClass">Class:</label>
+                        <input class="form-control" id="studentClass" th:field="*{studentClass}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Booking</h5>
+            <div class="card-body">
+                <div class="row mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingDate">Booking Date:<span class="text-danger">*</span></label>
+                        <input id="bookingDate" class="form-control" type="text" th:field="*{bookingDate}">
+                    </div>
+                    <span th:if="${#fields.hasErrors('bookingDate')}" th:errorclass="error" th:errors="*{bookingDate}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 mt-3">
+            <div class="d-flex justify-content-start">
+                <button type="submit" class="btn btn-lg btn-primary" th:if="${menuAuthorizer.canAssignSeat}">Save</button>
+            </div>
+        </div>
+    </form>
+
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        let studentId = null;
+
+        (() => {
+            const bookingDate = document.getElementById("bookingDate");
+            applyDatepicker(bookingDate, bookingDate.value);
+        })();
+
+        function renderStudent(searchKey, student) {
+            return `<div class="d-flex justify-content-between">
+                        <div>
+                            <div>${student.applicant.nameEn} - ${student.studentId}</div>
+                            <div>${student.applicant.nameBn}</div>
+                        </div>
+                    </div>`
+        }
+
+        function selectStudent(searchKey, student) {
+            studentId = student.id;
+            document.querySelector('#studentName').value = student.applicant.nameEn;
+            document.querySelector('#studentId').value = student.studentId;
+            document.querySelector('#institution').value = student.institutionName;
+            document.querySelector('#studentClass').value = student.currentAcademicClassInfo;
+            document.querySelector('#student-row-id').value = student.id;
+            document.querySelector('.student-search').value = "";
+        }
+
+        function clearStudent() {
+            studentId = null;
+            document.querySelector('#studentName').value = "";
+            document.querySelector('#studentId').value = "";
+            document.querySelector('#institution').value = "";
+            document.querySelector('#studentClass').value = "";
+            document.querySelector('.student-search').value = "";
+            document.querySelector('#student-row-id').value = null;
+            document.querySelector('.student-search').focus();
+        }
+
+        function openApplicantDetails() {
+            const studentProfile = /*[[${studentProfile}]]*/'';
+
+            if(studentId) {
+                window.open(studentProfile + '?id=' + studentId, '_blank');
+            }
+        }
+
+        (() => {
+            new AutoComplete(document.querySelector('#student'), renderStudent, selectStudent);
+        })();
+
+    </script>
+</th:block>
+</body>
+</html>

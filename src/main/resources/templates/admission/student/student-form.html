@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Education</title>
+    <script type="text/javascript" th:src="@{/resources/js/scripts.js}"></script>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="(${student.id > 0} ? #{student.form.update.title} : #{student.form.create.title})"></h4>
+<div id="content" layout:fragment="content">
+
+    <form method="post" th:object="${student}" th:action="${entryUrl}">
+
+        <input th:field="*{applicant.id}" type="hidden">
+        <input th:field="*{id}" type="hidden">
+
+        <div class="row mb-3">
+            <div class="col-3">
+                <img th:id="formImageOld" th:src="@{#}" th:if="${student.applicant.imagePath != '' && student.applicant.imagePath != null}" alt="available"
+                     style="width: 44mm; height: 54mm; border: 2px solid #333"/>
+                <img th:id="formImageMale" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail"
+                     th:if="${student.applicant.gender eq 'Male' && (student.applicant.imagePath eq null || student.applicant.imagePath eq '')}"
+                     style="width: 45mm; height: 55mm"/>
+                <img th:id="formImageFemale" th:src="@{/resources/img/dummy_female.jpg}" class="img-thumbnail"
+                     th:if="${student.applicant.gender eq 'Female' && (student.applicant.imagePath eq null || student.applicant.imagePath eq '')}"
+                     style="width: 45mm; height: 55mm"/>
+            </div>
+            <div class="col-9">
+                <div class="row mb-2">
+                    <div class="fw-bold" id="studentInfo"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header border-blue-100">
+                <h5 class="card-header-custom text-primary d-flex justify-content-between">Applicant's Academic
+                    Info</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label class="form-label" for="studentId">Quanta ID:<span class="text-danger">*</span> </label>
+                        <input class="form-control" id="studentId" th:field="*{studentId}">
+                        <span th:if="${#fields.hasErrors('studentId')}" th:errorclass="error"
+                              th:errors="*{studentId}"></span>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" for="current-status">Status: </label>
+                        <select class="form-control" id="current-status" th:field="*{status}">
+                            <option th:each="studentStatus: ${studentStatusList}"
+                                    th:text="${studentStatus.title}"
+                                    th:value="${studentStatus.title}"></option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" for="institution">Institution:<span class="text-danger">*</span></label>
+                        <select class="form-control" id="institution" th:field="*{institutionId}"
+                                onchange="setTextAsValue(this, 'institutionName')">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:value="${institution.id}"
+                                    th:text="${institution.name}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('institutionName')}" th:errorclass="error" th:errors="*{institutionName}"></span>
+                        <input type="hidden" id="institutionName" th:field="*{institutionName}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-4" th:name="action"
+                th:value="${student.id > 0} ? 'update' : 'new'"
+                th:text="${student.id > 0} ? 'Update' : 'Save'"
+                th:if="${menuAuthorizer.canCreateStudent}">
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</div>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function setTextAsValue(el, id) {
+            if (el.value !== '0'){
+                document.getElementById(id).value = el.options[el.selectedIndex].text;
+            }else{
+                document.getElementById(id).value = '';
+            }
+        }
+
+        (() => {
+            const url = '/admission/applicant/image/download';
+            const student = /*[[${student}]]*/'';
+            const path = student.applicant.imagePath;
+
+            if (student) {
+                fetch(generateRequestURL(url, {path: path}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.getElementById('formImageOld').src = image.data;
+                    })
+                document.getElementById('studentInfo').innerHTML = student.studentInfo;
+            }
+        })();
+    </script>
+</th:block>
+</body>
+</html>

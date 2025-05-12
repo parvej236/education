@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Education</title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Permitted Applicant Search Criteria</h4>
+<th:block layout:fragment="content">
+
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th data-column-name='action' style="width:64px;">Action</th>
+            <th data-column-name='name'>Name</th>
+            <th data-column-name='formNo'>Form No</th>
+            <th data-column-name='session'>Session</th>
+            <th data-column-name='appliedClass'>Class</th>
+            <th data-column-name='examCenter'>Exam Center</th>
+            <th data-column-name='religion'>Religion</th>
+            <th data-column-name='community'>Community</th>
+            <th data-column-name='selected'>Selection</th>
+            <th data-column-name='admitted'>Admission</th>
+        </tr>
+        </thead>
+    </table>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        const table = new DataTable('#table', {
+            omniPlaceholder: 'name or form number...',
+            sortColumn: "formNo",
+            showDownloadButton: false,
+            loaderText: 'Loading applicant list...',
+            noRecordText: 'No records found in applicant',
+
+            formatter: {
+                name: (el, column, rowData) => {
+                    el.innerHTML = rowData.nameEn
+                },
+                selected: (el, column, rowData) => {
+                    el.innerHTML = rowData.selected ? 'Yes' : 'No'
+                },
+                admitted: (el, column, rowData) => {
+                    el.innerHTML = rowData.admitted ? 'Yes' : 'No'
+                },
+                action: (el, column, rowData) => {
+                    const editUrl = /*[[${entryUrl}]]*/ '/admission/create-student/'
+                    el.innerHTML = `<a href="${editUrl}?applicantId=${rowData.id}" id="myDropdown" class="btn btn-secondary btn-sm" type="button">
+                    Open
+                    </a>`
+                }
+            }
+        })
+
+    </script>
+</th:block>
+</body>
+</html>

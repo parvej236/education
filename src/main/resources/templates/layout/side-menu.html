@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidemenu" th:with="
+                applicants=${T(bd.org.quantum.education.common.Routes).APPLICANTS},
+                applicantAdd=${T(bd.org.quantum.education.common.Routes).CREATE_APPLICANT},
+                examCenters=${T(bd.org.quantum.education.common.Routes).EXAM_CENTER_LIST},
+                examCenterEntry=${T(bd.org.quantum.education.common.Routes).EXAM_CENTER_ENTRY},
+                examCenterUpdate=${T(bd.org.quantum.education.common.Routes).EXAM_CENTER_UPDATE},
+                applicantReport=${T(bd.org.quantum.education.common.Routes).APPLICANT_REPORT},
+
+                students=${T(bd.org.quantum.education.common.Routes).STUDENTS},
+                studentAdd=${T(bd.org.quantum.education.common.Routes).CREATE_STUDENT},
+                applicantsList=${T(bd.org.quantum.education.common.Routes).PERMITTED_APPLICANTS},
+                studentUpdate=${T(bd.org.quantum.education.common.Routes).UPDATE_STUDENT},
+                guardianEntry=${T(bd.org.quantum.education.common.Routes).GUARDIAN_ENTRY},
+                guardianList=${T(bd.org.quantum.education.common.Routes).GUARDIAN_LIST},
+                assignDocument=${T(bd.org.quantum.education.common.Routes).ASSIGN_DOCUMENT},
+                studentDocumentList=${T(bd.org.quantum.education.common.Routes).STUDENT_DOCUMENT_LIST},
+                studentReport=${T(bd.org.quantum.education.common.Routes).STUDENT_REPORT},
+
+                documents=${T(bd.org.quantum.education.common.Routes).DOCUMENTS},
+                documentsInformation=${T(bd.org.quantum.education.common.Routes).DOCUMENTS_INFORMATION},
+                documentsInformationUpdate=${T(bd.org.quantum.education.common.Routes).DOCUMENTS_INFORMATION_UPDATE},
+                documentsReport=${T(bd.org.quantum.education.common.Routes).DOCUMENTS_REPORT},
+
+                guardianAppointmentEntry=${T(bd.org.quantum.education.common.Routes).GUARDIAN_APPOINTMENT_ENTRY},
+                guardianAppointmentList=${T(bd.org.quantum.education.common.Routes).GUARDIAN_APPOINTMENT_LIST},
+
+                institutionList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_INSTITUTION_LIST},
+                institutionEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_INSTITUTION_ENTRY},
+                classList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_LIST},
+                classEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_ENTRY},
+                subjectList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SUBJECT_LIST},
+                subjectEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SUBJECT_ENTRY},
+                subjectTypeList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SUBJECT_TYPE_LIST},
+                subjectTypeEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SUBJECT_TYPE_ENTRY},
+                examList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_LIST},
+                examEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_ENTRY},
+                userAccess=${T(bd.org.quantum.education.common.Routes).ACADEMIC_USER_ACCESS},
+
+                academicClassList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_CLASS_LIST},
+                academicClassEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_CLASS_ENTRY},
+                academicClassListWithSubject=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_SUBJECT_ASSIGNED_CLASS_LIST},
+                academicClassListWithNoSubject=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_SUBJECT_NOT_ASSIGNED_CLASS_LIST},
+                academicClassSubjectAssign=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_SUBJECT_ASSIGN},
+                academicClassPromotableList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_PROMOTABLE_LIST},
+                academicClassPromotion=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CLASS_PROMOTION},
+
+                academicStudentList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_STUDENT_LIST},
+                academicStudentProfile=${T(bd.org.quantum.education.common.Routes).ACADEMIC_STUDENT_PROFILE},
+                studentListWithoutClass=${T(bd.org.quantum.education.common.Routes).ACADEMIC_STUDENT_LIST_WITHOUT_CLASS},
+                assignStudentToClass=${T(bd.org.quantum.education.common.Routes).ACADEMIC_ASSIGN_STUDENT_TO_CLASS},
+                shiftLog=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SHIFT_LOG},
+                shiftStudent=${T(bd.org.quantum.education.common.Routes).ACADEMIC_SHIFT_STUDENT},
+                releasableList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_RELEASABLE_LIST},
+                releaseStudent=${T(bd.org.quantum.education.common.Routes).ACADEMIC_RELEASE_STUDENT},
+
+                examMarkSheetList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_MARK_SHEET_LIST},
+                examMarkSheetEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_MARK_SHEET_ENTRY},
+                examMarkEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_MARK_ENTRY},
+                resultPublication=${T(bd.org.quantum.education.common.Routes).ACADEMIC_RESULT_PUBLICATION_ENTRY},
+                examReport=${T(bd.org.quantum.education.common.Routes).ACADEMIC_EXAM_REPORT},
+
+                academicAttendanceSheetList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_ATTENDANCE_SHEET_LIST},
+                academicAttendanceSheetEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_ATTENDANCE_SHEET_ENTRY},
+                academicAttendanceEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_ATTENDANCE_ENTRY},
+                academicAttendanceReport=${T(bd.org.quantum.education.common.Routes).ACADEMIC_ATTENDANCE_REPORT},
+
+                caseEntry=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CASE_ENTRY},
+                caseList=${T(bd.org.quantum.education.common.Routes).ACADEMIC_CASE_LIST},
+
+                residenceStudentList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_STUDENT_LIST},
+                residenceStudentProfile=${T(bd.org.quantum.education.common.Routes).RESIDENCE_STUDENT_PROFILE},
+
+                residenceList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_RESIDENCE_LIST},
+                residenceAdd=${T(bd.org.quantum.education.common.Routes).RESIDENCE_RESIDENCE_ENTRY},
+                hallList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_HALL_LIST},
+                hallAdd=${T(bd.org.quantum.education.common.Routes).RESIDENCE_HALL_ENTRY},
+                roomList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_ROOM_LIST},
+                roomAdd=${T(bd.org.quantum.education.common.Routes).RESIDENCE_ROOM_ENTRY},
+
+                seatList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_SEAT_LIST},
+                seatAssign=${T(bd.org.quantum.education.common.Routes).RESIDENCE_SEAT_ASSIGN},
+                seatBookingList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_SEAT_BOOKING_LIST},
+                seatRelease=${T(bd.org.quantum.education.common.Routes).RESIDENCE_SEAT_RELEASE},
+                seatBookingLog=${T(bd.org.quantum.education.common.Routes).RESIDENCE_SEAT_BOOKING_LOG},
+
+                residenceAttendanceSheetEntry=${T(bd.org.quantum.education.common.Routes).RESIDENCE_ATTENDANCE_SHEET_ENTRY},
+                residenceAttendanceSheetList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_ATTENDANCE_SHEET_LIST},
+                residenceAttendanceEntry=${T(bd.org.quantum.education.common.Routes).RESIDENCE_ATTENDANCE_ENTRY},
+
+                caseEntry=${T(bd.org.quantum.education.common.Routes).RESIDENCE_CASE_ENTRY},
+                caseList=${T(bd.org.quantum.education.common.Routes).RESIDENCE_CASE_LIST}">
+  <ul class="nav flex-column">
+
+    <li class="nav-link align-items-center text-primary fs-5" th:if="${menuAuthorizer.canViewAdmissionMenu}">Admission</li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewApplicantMenu}"
+        th:with="startWithApplicants=${#request.requestURI.startsWith(applicants)},
+                 startWithApplicantAdd=${#request.requestURI.startsWith(applicantAdd)},
+                 startWithExamCenters=${#request.requestURI.startsWith(examCenters)},
+                 startWithExamCenterEntry=${#request.requestURI.startsWith(examCenterEntry)},
+                 startWithExamCenterUpdate=${#request.requestURI.startsWith(examCenterUpdate)},
+                 startWithApplicantReport=${#request.requestURI.startsWith(applicantReport)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#applicant-collapse"
+         th:classappend="${startWithApplicantAdd ? 'active' : (startWithApplicants ? 'active' : (startWithExamCenters ? 'active' : (startWithExamCenterEntry ? 'active' : (startWithExamCenterUpdate ? 'active' : (startWithApplicantReport ? 'active' : '')))))}"
+         th:attr="aria-expanded=${startWithApplicantAdd ? 'true' : (startWithApplicants ? 'true' : (startWithExamCenters ? 'true' : (startWithExamCenterEntry ? 'true' : (startWithExamCenterUpdate ? 'true' : (startWithApplicantReport ? 'true' : 'false')))))}">
+        <i class="bi bi-person-badge me-2"></i>Applicant</a>
+      <div id="applicant-collapse" class="collapse" th:classappend="${startWithApplicants ? 'show' : (startWithApplicantAdd ? 'show' : (startWithExamCenters ? 'show' : (startWithExamCenterEntry ? 'show' : (startWithExamCenterUpdate ? 'show' : (startWithApplicantReport ? 'show' : '')))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithApplicantAdd ? 'active-item': ''}" th:href="@{${applicantAdd}}" th:if="${menuAuthorizer.canCreateApplicant}"><i class="bi bi-plus-square-fill me-2"></i>New</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithApplicants ? 'active-item': ''}" th:href="@{${applicants}}" th:if="${menuAuthorizer.canViewApplicant}"><i class="bi bi-list me-2"></i>List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithExamCenters || startWithExamCenterEntry || startWithExamCenterUpdate ? 'active-item': ''}" th:href="@{${examCenters}}" th:if="${menuAuthorizer.canManageExamCenter}"><i class="bi bi-list-ul me-2"></i>Exam Center</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithApplicantReport ? 'active-item': ''}" th:href="@{${applicantReport}}" th:if="${menuAuthorizer.canGenerateApplicantReport}"><i class="bi bi-list me-2"></i>Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewStudentMenu}"
+        th:with="startWithStudents=${#request.requestURI.startsWith(students)},
+                 startWithApplicantList=${#request.requestURI.startsWith(applicantsList)},
+                 startWithStudentUpdate=${#request.requestURI.startsWith(studentUpdate)},
+                 startWithStudentAdd=${#request.requestURI.startsWith(studentAdd)},
+                 startWithGuardianEntry=${#request.requestURI.startsWith(guardianEntry)},
+                 startWithGuardianList=${#request.requestURI.startsWith(guardianList)},
+                 startWithStudentDocumentList=${#request.requestURI.startsWith(studentDocumentList)},
+                 startWithAssignDocument=${#request.requestURI.startsWith(assignDocument)},
+                 startWithStudentReport=${#request.requestURI.startsWith(studentReport)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#student-collapse"
+         th:classappend="${startWithApplicantList ? 'active' : (startWithStudentAdd ? 'active' : (startWithStudentUpdate ? 'active' : (startWithStudents ? 'active' : (startWithGuardianEntry ? 'active' : (startWithGuardianList ? 'active' : (startWithStudentDocumentList ? 'active' : (startWithAssignDocument ? 'active' : (startWithStudentReport ? 'active' : ''))))))))}"
+         th:attr="aria-expanded=${startWithApplicantList ? 'true' :  (startWithStudentAdd ? 'true' : (startWithStudentUpdate ? 'true' : (startWithStudents ? 'true' : (startWithGuardianEntry ? 'true' : (startWithGuardianList ? 'true' : (startWithStudentDocumentList ? 'true' : (startWithAssignDocument ? 'true' : (startWithStudentReport ? 'true' : 'false'))))))))}">
+        <i class="bi bi-file-earmark-person me-2"></i>Student</a>
+      <div id="student-collapse" class="collapse" th:classappend="${startWithStudents ? 'show' : (startWithStudentUpdate ? 'show' : (startWithApplicantList ? 'show' :(startWithStudentAdd ? 'show' : (startWithStudentDocumentList ? 'show' : (startWithAssignDocument ? 'show' : (startWithGuardianEntry ? 'show' : (startWithGuardianList ? 'show' : (startWithStudentReport ? 'show' : ''))))))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithApplicantList || startWithStudentAdd ? 'active-item': ''}" th:href="@{${applicantsList}}" th:if="${menuAuthorizer.canCreateStudent}"><i class="bi bi-plus-square-fill me-2"></i>New</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithStudents || startWithStudentUpdate ? 'active-item': ''}" th:href="@{${students}}" th:if="${menuAuthorizer.canViewStudent}"><i class="bi bi-list me-2"></i>List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithGuardianEntry || startWithGuardianList ? 'active-item': ''}" th:href="@{${guardianList}}" th:if="${menuAuthorizer.canManageGuardain}"><i class="bi bi-person-bounding-box me-2"></i>Guardian</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithStudentDocumentList || startWithAssignDocument ? 'active-item': ''}" th:href="@{${studentDocumentList}}" th:if="${menuAuthorizer.canAssignDocument}"><i class="bi bi-file-earmark-medical me-2"></i>Assign Document</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithStudentReport ? 'active-item': ''}" th:href="@{${studentReport}}" th:if="${menuAuthorizer.canGenerateStudentReport}"><i class="bi bi-list me-2"></i>Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewDocumentMenu}"
+        th:with="startWithDocuments=${#request.requestURI.startsWith(documents)},
+                 startWithDocumentEntry=${#request.requestURI.startsWith(documentsInformation)},
+                 startWithDocumentUpdate=${#request.requestURI.startsWith(documentsInformationUpdate)},
+                 startWithDocumentReport=${#request.requestURI.startsWith(documentsReport)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#document-collapse"
+         th:classappend="${startWithDocumentEntry ? 'active' :(startWithDocumentUpdate ? 'active' : (startWithDocumentReport ? 'active' : (startWithDocuments ? 'active' : '')))}"
+         th:attr="aria-expanded=${startWithDocumentEntry ? 'true' :(startWithDocumentUpdate ? 'true' : (startWithDocumentReport ? 'true' : (startWithDocuments ? 'true' : 'false')))}">
+        <i class="bi bi-file-text me-2"></i>Document</a>
+      <div id="document-collapse" class="collapse" th:classappend="${startWithDocuments ? 'show' : (startWithDocumentUpdate ? 'show' : (startWithDocumentEntry ? 'show' : ''))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithDocumentEntry ? 'active-item': ''}" th:href="@{${documentsInformation}}" th:if="${menuAuthorizer.canCreateDocument}"><i class="bi bi-plus-square-fill me-2"></i>New</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithDocuments || startWithDocumentUpdate ? 'active-item': ''}" th:href="@{${documents}}" th:if="${menuAuthorizer.canViewDocument}"><i class="bi bi-list me-2"></i>List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithDocumentReport ? 'active-item': ''}" th:href="@{${documentsReport}}" th:if="${menuAuthorizer.canGenerateDocumentReport}"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAppointmentMenu}"
+        th:with="startWithGuardianAppointmentEntry=${#request.requestURI.startsWith(guardianAppointmentEntry)},
+                 startWithGuardianAppointmentList=${#request.requestURI.startsWith(guardianAppointmentList)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#guardian-appointment-collapse"
+         th:classappend="${startWithGuardianAppointmentEntry ? 'active' :(startWithGuardianAppointmentList ? 'active' : '')}"
+         th:attr="aria-expanded=${startWithGuardianAppointmentEntry ? 'true' :(startWithGuardianAppointmentList ? 'true' : 'false')}">
+        <i class="bi bi-envelope me-2"></i>Appointment</a>
+      <div id="guardian-appointment-collapse" class="collapse" th:classappend="${startWithGuardianAppointmentEntry ? 'show' : (startWithGuardianAppointmentList ? 'show' : '')}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithGuardianAppointmentEntry ? 'active-item': ''}" th:href="@{${guardianAppointmentEntry}}" th:if="${menuAuthorizer.canCreateAppointment}"><i class="bi bi-plus-square-fill me-2"></i>New</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithGuardianAppointmentList ? 'active-item': ''}" th:href="@{${guardianAppointmentList}}" th:if="${menuAuthorizer.canViewAppointment}"><i class="bi bi-list me-2"></i>List</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-link align-items-center text-primary fs-5" th:if="${menuAuthorizer.canViewAcademicMenu}">Academic</li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAcademicReferenceMenu}"
+        th:with="startWithInstitutionList=${#request.requestURI.startsWith(institutionList)},
+                 startWithInstitutionEntry=${#request.requestURI.startsWith(institutionEntry)},
+                 startWithClassList=${#request.requestURI.startsWith(classList)},
+                 startWithClassEntry=${#request.requestURI.startsWith(classEntry)},
+                 startWithSubjectList=${#request.requestURI.startsWith(subjectList)},
+                 startWithSubjectEntry=${#request.requestURI.startsWith(subjectEntry)},
+                 startWithSubjectTypeList=${#request.requestURI.startsWith(subjectTypeList)},
+                 startWithSubjectTypeEntry=${#request.requestURI.startsWith(subjectTypeEntry)},
+                 startWithExamList=${#request.requestURI.startsWith(examList)},
+                 startWithExamEntry=${#request.requestURI.startsWith(examEntry)},
+                 startWithUserAccess=${#request.requestURI.startsWith(userAccess)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-reference-collapse"
+         th:classappend="${startWithInstitutionList ? 'active': (startWithInstitutionEntry ? 'active' : (startWithClassList ? 'active' : (startWithClassEntry ? 'active' : (startWithSubjectList ? 'active' : (startWithSubjectEntry ? 'active' : (startWithSubjectTypeList ? 'active' : (startWithSubjectTypeEntry ? 'active' : (startWithExamList ? 'active' : (startWithExamEntry ? 'active' : (startWithUserAccess ? 'active' : ''))))))))))}"
+         th:attr="aria-expanded=${startWithInstitutionList ? 'true': (startWithInstitutionEntry ? 'true' : (startWithClassList ? 'true' : (startWithClassEntry ? 'true' : (startWithSubjectList ? 'true' : (startWithSubjectEntry ? 'true' : (startWithSubjectTypeList ? 'true' : (startWithSubjectTypeEntry ? 'true' : (startWithExamList ? 'true' : (startWithExamEntry ? 'true' : (startWithUserAccess ? 'true' : 'false'))))))))))}">
+        <i class="bi bi-file-earmark-medical me-2"></i>Reference</a>
+      <div id="academic-reference-collapse" class="collapse" th:classappend="${startWithInstitutionList ? 'show' : (startWithInstitutionEntry ? 'show' : (startWithClassList ? 'show' : (startWithClassEntry ? 'show' : (startWithSubjectList ? 'show' : (startWithSubjectEntry ? 'show' : (startWithSubjectTypeList ? 'show' : (startWithSubjectTypeEntry ? 'show' : (startWithExamList ? 'show' : (startWithExamEntry ? 'show' : (startWithUserAccess ? 'show' : ''))))))))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithInstitutionList || startWithInstitutionEntry ? 'active-item': ''}" th:href="@{${institutionList}}" th:if="${menuAuthorizer.canViewAcademicReference}"><i class="bi bi-bookmark me-2"></i>Institution</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithClassList || startWithClassEntry ? 'active-item': ''}" th:href="@{${classList}}" th:if="${menuAuthorizer.canViewAcademicReference}"><i class="bi bi-journal-bookmark me-2"></i>Class</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithSubjectList || startWithSubjectEntry ? 'active-item': ''}" th:href="@{${subjectList}}" th:if="${menuAuthorizer.canViewAcademicReference}"><i class="bi bi-book me-2"></i>Subject</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithSubjectTypeList || startWithSubjectTypeEntry ? 'active-item': ''}" th:href="@{${subjectTypeList}}" th:if="${menuAuthorizer.canViewAcademicReference}"><i class="bi bi-journal-medical me-2"></i>Subject Type</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithExamList || startWithExamEntry ? 'active-item': ''}" th:href="@{${examList}}" th:if="${menuAuthorizer.canViewAcademicReference}"><i class="bi bi-journal-check me-2"></i>Exam</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithUserAccess ? 'active-item': ''}" th:href="@{${userAccess}}" th:if="${menuAuthorizer.canManageUserAccess}"><i class="bi bi-shield-lock me-2"></i>User Access</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAcademicClassMenu}"
+        th:with="startWithAcademicClassList=${#request.requestURI.startsWith(academicClassList)},
+                 startWithAcademicClassEntry=${#request.requestURI.startsWith(academicClassEntry)},
+                 startWithAcademicClassListWithSubject=${#request.requestURI.startsWith(academicClassListWithSubject)},
+                 startWithAcademicClassListWithNoSubject=${#request.requestURI.startsWith(academicClassListWithNoSubject)},
+                 startWithAcademicClassSubjectAssign=${#request.requestURI.startsWith(academicClassSubjectAssign)},
+                 startWithAcademicClassPromotableList=${#request.requestURI.startsWith(academicClassPromotableList)},
+                 startWithAcademicClassPromotion=${#request.requestURI.startsWith(academicClassPromotion)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-class-collapse"
+         th:classappend="${startWithAcademicClassList ? 'active': (startWithAcademicClassEntry ? 'active' : (startWithAcademicClassListWithSubject ? 'active' : (startWithAcademicClassListWithNoSubject ? 'active' : (startWithAcademicClassSubjectAssign ? 'active' : (startWithAcademicClassPromotableList? 'active' : (startWithAcademicClassPromotion ? 'active' : ''))))))}"
+         th:attr="aria-expanded=${startWithAcademicClassList ? 'true': (startWithAcademicClassEntry ? 'true' : (startWithAcademicClassListWithSubject ? 'true' : (startWithAcademicClassListWithNoSubject ? 'true' : (startWithAcademicClassSubjectAssign ? 'true' : (startWithAcademicClassPromotableList? 'true' : (startWithAcademicClassPromotion ? 'true' : 'false'))))))}">
+        <i class="bi bi-journal-bookmark me-2"></i>Academic Class</a>
+      <div id="academic-class-collapse" class="collapse" th:classappend="${startWithAcademicClassList ? 'show' : (startWithAcademicClassEntry ? 'show' : (startWithAcademicClassListWithSubject ? 'show' : (startWithAcademicClassListWithNoSubject ? 'show' : (startWithAcademicClassSubjectAssign ? 'show' : (startWithAcademicClassPromotableList ? 'show' : (startWithAcademicClassPromotion ? 'show' : ''))))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicClassList || startWithAcademicClassEntry ? 'active-item': ''}" th:href="@{${academicClassList}}" th:if="${menuAuthorizer.canCreateAcademicClass || menuAuthorizer.canViewAcademicClass}"><i class="bi bi-journal-bookmark me-2"></i>Class List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicClassListWithSubject || startWithAcademicClassListWithNoSubject || startWithAcademicClassSubjectAssign ? 'active-item': ''}" th:href="@{${academicClassListWithSubject}}" th:if="${menuAuthorizer.canAssignSubject}"><i class="bi bi-book me-2"></i>Subject Assign</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicClassPromotableList || startWithAcademicClassPromotion ? 'active-item': ''}" th:href="@{${academicClassPromotableList}}" th:if="${menuAuthorizer.canManagePromotion}"><i class="bi bi-bookmark me-2"></i>Promotion</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAcademicStudentMenu}"
+        th:with="startWithAcademicStudentList=${#request.requestURI.startsWith(academicStudentList)},
+                 startWithAcademicStudentProfile=${#request.requestURI.startsWith(academicStudentProfile)},
+                 startWithStudentListWithoutClass=${#request.requestURI.startsWith(studentListWithoutClass)},
+                 startWithAssignStudentToClass=${#request.requestURI.startsWith(assignStudentToClass)},
+                 startWithShiftLog=${#request.requestURI.startsWith(shiftLog)},
+                 startWithShiftStudent=${#request.requestURI.startsWith(shiftStudent)},
+                 startWithReleasableList=${#request.requestURI.startsWith(releasableList)},
+                 startWithReleaseStudent=${#request.requestURI.startsWith(releaseStudent)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-student-collapse"
+         th:classappend="${startWithAcademicStudentList ? 'active' : (startWithAcademicStudentProfile ? 'active' : (startWithStudentListWithoutClass ? 'active' : (startWithAssignStudentToClass ? 'active' : (startWithShiftLog ? 'active' : (startWithShiftStudent ? 'active' : (startWithReleasableList ? 'active' : (startWithReleaseStudent ? 'active' : '')))))))}"
+         th:attr="aria-expanded=${startWithAcademicStudentList ? 'true' : (startWithAcademicStudentProfile ? 'true' : (startWithStudentListWithoutClass ? 'true' : (startWithAssignStudentToClass ? 'true' : (startWithShiftLog ? 'true' : (startWithShiftStudent ? 'true' : (startWithReleasableList ? 'true' : (startWithReleaseStudent ? 'true' : 'false')))))))}">
+        <i class="bi bi-file-earmark-person me-2"></i>Student</a>
+      <div id="academic-student-collapse" class="collapse" th:classappend="${startWithAcademicStudentList ? 'show' : (startWithAcademicStudentProfile ? 'show' : (startWithStudentListWithoutClass ? 'show' : (startWithAssignStudentToClass ? 'show' : (startWithShiftLog ? 'show' : (startWithShiftStudent ? 'show' : (startWithReleasableList ? 'show' : (startWithReleaseStudent ? 'show' : '')))))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicStudentList || startWithAcademicStudentProfile ? 'active-item': ''}" th:href="@{${academicStudentList}}" th:if="${menuAuthorizer.canViewAcademicStudent}"><i class="bi bi-journal-medical me-2"></i>Student List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithStudentListWithoutClass || startWithAssignStudentToClass ? 'active-item': ''}" th:href="@{${studentListWithoutClass}}" th:if="${menuAuthorizer.canAssignStudentToClass}"><i class="bi bi-journal-medical me-2"></i>Assign to Class</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithShiftLog || startWithShiftStudent ? 'active-item': ''}" th:href="@{${shiftLog}}" th:if="${menuAuthorizer.canShiftStudent}"><i class="bi bi-toggles me-2"></i>Shift Student</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithReleasableList || startWithReleaseStudent ? 'active-item': ''}" th:href="@{${releasableList}}" th:if="${menuAuthorizer.canReleaseClass}"><i class="bi bi-journal-check me-2"></i>Release</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewExaminationMenu}"
+        th:with="startWithExamMarkSheetList=${#request.requestURI.startsWith(examMarkSheetList)},
+                      startWithExamMarkSheetEntry=${#request.requestURI.startsWith(examMarkSheetEntry)},
+                      startWithExamMarkEntry=${#request.requestURI.startsWith(examMarkEntry)},
+                      startWithResultPublication=${#request.requestURI.startsWith(resultPublication)},
+                      startWithExamReport=${#request.requestURI.startsWith(examReport)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-examination-collapse"
+         th:classappend="${startWithExamMarkSheetList ? 'active': (startWithExamMarkSheetEntry ? 'active' : (startWithExamMarkEntry ? 'active' : (startWithResultPublication ? 'active' : (startWithExamReport ? 'active' : ''))))}"
+         th:attr="aria-expanded=${startWithExamMarkSheetList ? 'true': (startWithExamMarkSheetEntry ? 'true' : (startWithExamMarkEntry ? 'true' : (startWithResultPublication ? 'true' : (startWithExamReport ? 'true' : 'false'))))}">
+        <i class="bi bi-check2-circle me-2"></i>Examination</a>
+      <div id="academic-examination-collapse" class="collapse" th:classappend="${startWithExamMarkSheetList ? 'show' : (startWithExamMarkSheetEntry ? 'show' : (startWithExamMarkEntry ? 'show' : (startWithResultPublication ? 'show' : (startWithExamReport ? 'show' : ''))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithExamMarkSheetList || startWithExamMarkSheetEntry || startWithExamMarkEntry ? 'active-item': ''}" th:href="@{${examMarkSheetList}}" th:if="${menuAuthorizer.canViewExamMarkSheet}"><i class="bi bi-journal-bookmark me-2"></i>Exam Marks</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithResultPublication ? 'active-item': ''}" th:href="@{${resultPublication}}" th:if="${menuAuthorizer.canPublishResult}"><i class="bi bi-journal-bookmark me-2"></i>Result Publication</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithExamReport ? 'active-item': ''}" th:href="@{${examReport}}" th:if="${menuAuthorizer.canGenerateExamReport}"><i class="bi bi-journal-bookmark me-2"></i>Exam Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAcademicAttendanceMenu}"
+        th:with="startWithAcademicAttendanceSheetList=${#request.requestURI.startsWith(academicAttendanceSheetList)},
+                 startWithAcademicAttendanceSheetEntry=${#request.requestURI.startsWith(academicAttendanceSheetEntry)},
+                 startWithAcademicAttendanceEntry=${#request.requestURI.startsWith(academicAttendanceEntry)},
+                 startWithAcademicAttendanceReport=${#request.requestURI.startsWith(academicAttendanceReport)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-attendance-collapse"
+         th:classappend="${startWithAcademicAttendanceSheetList ? 'active': (startWithAcademicAttendanceSheetEntry ? 'active' : (startWithAcademicAttendanceEntry ? 'active' : (startWithAcademicAttendanceReport ? 'active' : '')))}"
+         th:attr="aria-expanded=${startWithAcademicAttendanceSheetList ? 'true': (startWithAcademicAttendanceSheetEntry ? 'true' : (startWithAcademicAttendanceEntry ? 'true' : (startWithAcademicAttendanceReport ? 'true' : 'false')))}">
+        <i class="bi bi-calendar-check me-2"></i>Attendance</a>
+      <div id="academic-attendance-collapse" class="collapse" th:classappend="${startWithAcademicAttendanceSheetList ? 'show' : (startWithAcademicAttendanceSheetEntry ? 'show' : (startWithAcademicAttendanceEntry ? 'show' : (startWithAcademicAttendanceReport ? 'show' : '')))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicAttendanceSheetEntry || startWithAcademicAttendanceEntry ? 'active-item': ''}" th:href="@{${academicAttendanceSheetEntry}}" th:if="${menuAuthorizer.canCreateAcademicAttendance}"><i class="bi bi-journal-bookmark me-2"></i>Entry</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicAttendanceSheetList ? 'active-item': ''}" th:href="@{${academicAttendanceSheetList}}" th:if="${menuAuthorizer.canViewAcademicAttendance}"><i class="bi bi-journal-bookmark me-2"></i>List</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithAcademicAttendanceReport ? 'active-item': ''}" th:href="@{${academicAttendanceReport}}" th:if="${menuAuthorizer.canGenerateAcademicAttendanceReport}"><i class="bi bi-journal-bookmark me-2"></i>Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewAcademicDisciplineMenu}"
+        th:with="startWithCaseEntry=${#request.requestURI.startsWith(caseEntry)},
+                 startWithCaseList=${#request.requestURI.startsWith(caseList)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#academic-discipline-collapse"
+         th:classappend="${startWithCaseEntry ? 'active': (startWithCaseList ? 'active' : '')}"
+         th:attr="aria-expanded=${startWithCaseEntry ? 'true': (startWithCaseList ? 'true' : 'false')}">
+        <i class="bi bi-patch-exclamation me-2"></i>Discipline</a>
+      <div id="academic-discipline-collapse" class="collapse" th:classappend="${startWithCaseEntry ? 'show' : (startWithCaseList ? 'show' : '')}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithCaseEntry ? 'active-item': ''}" th:href="@{${caseEntry}}" th:if="${menuAuthorizer.canCreateAcademicDiscipline}"><i class="bi bi-bookmark me-2"></i>Case Entry</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithCaseList ? 'active-item': ''}" th:href="@{${caseList}}" th:if="${menuAuthorizer.canViewAcademicDiscipline}"><i class="bi bi-journal-bookmark me-2"></i>Case List</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-link align-items-center text-primary fs-5" th:if="${menuAuthorizer.canViewResidenceMenu}">Residence</li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewResidenceMenu}">
+      <a aria-current="page" class="nav-link" href="#" th:href="@{${residenceStudentList}}"><i class="bi bi-file-earmark-person me-2"></i>Student</a>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewResidenceReferenceMenu}"
+        th:with="startWithResidenceList=${#request.requestURI.startsWith(residenceList)},
+                 startWithResidenceAdd=${#request.requestURI.startsWith(residenceAdd)},
+                 startWithHallList=${#request.requestURI.startsWith(hallList)},
+                 startWithHallAdd=${#request.requestURI.startsWith(hallAdd)},
+                 startWithRoomAdd=${#request.requestURI.startsWith(roomAdd)},
+                 startWithRoomList=${#request.requestURI.startsWith(roomList)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#residence-reference-collapse"
+         th:classappend="${startWithResidenceList ? 'active' : (startWithResidenceAdd ? 'active' : (startWithHallList ? 'active' : (startWithHallAdd ? 'active' : (startWithRoomList ? 'active' : (startWithRoomAdd ? 'active' : '')))))}"
+         th:attr="aria-expanded=${startWithResidenceList ? 'true' : (startWithResidenceAdd ? 'true' : (startWithHallList ? 'true' :(startWithHallAdd ? 'true' : (startWithRoomList ? 'true' : (startWithRoomAdd ? 'active' : 'false')))))}">
+        <i class="bi bi-house-fill me-2"></i>Residence</a>
+      <div id="residence-reference-collapse" class="collapse" th:classappend="${startWithResidenceList ? 'show' : (startWithResidenceAdd ? 'show' : (startWithHallList ? 'show' : (startWithHallAdd ? 'show' : (startWithRoomList ? 'show' :  (startWithRoomAdd ? 'show' : '')))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithResidenceList || startWithResidenceAdd ? 'active-item': ''}" th:href="@{${residenceList}}" th:if="${menuAuthorizer.canViewResidenceReference}"><i class="bi bi-house-door me-2"></i>Residence</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithHallList || startWithHallAdd ? 'active-item': ''}" th:href="@{${hallList}}" th:if="${menuAuthorizer.canViewResidenceReference}"><i class="bi bi-border-all me-2"></i>Hall</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithRoomList || startWithRoomAdd ? 'active-item': ''}" th:href="@{${roomList}}" th:if="${menuAuthorizer.canViewResidenceReference}"><i class="bi bi-box me-2"></i>Room</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewSeatMenu}"
+        th:with="startWithSeatList=${#request.requestURI.startsWith(seatList)},
+                 startWithSeatAssign=${#request.requestURI.startsWith(seatAssign)},
+                 startWithSeatBookingList=${#request.requestURI.startsWith(seatBookingList)},
+                 startWithSeatRelease=${#request.requestURI.startsWith(seatRelease)},
+                 startWithSeatBookingLog=${#request.requestURI.startsWith(seatBookingLog)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#residence-seat-collapse"
+         th:classappend="${startWithSeatList ? 'active' : (startWithSeatAssign ? 'active' : (startWithSeatBookingList ? 'active' : (startWithSeatRelease ? 'active' : '')))}"
+         th:attr="aria-expanded=${startWithSeatList ? 'ture': (startWithSeatAssign ? 'true' : (startWithSeatBookingList ? 'true' : (startWithSeatRelease ? 'true' : 'false')))}">
+        <i class="bi bi-columns-gap me-2"></i>Seat</a>
+      <div id="residence-seat-collapse" class="collapse" th:classappend="${startWithSeatList ? 'show' : (startWithSeatAssign ? 'show' : (startWithSeatBookingList ? 'show' : (startWithSeatRelease ? 'show' : (startWithSeatBookingLog ? 'show' : ''))))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithSeatList || startWithSeatAssign ? 'active-item': ''}" th:href="@{${seatList}}" th:if="${menuAuthorizer.canViewSeat}"><i class="bi bi-calendar2-check me-2"></i>Seat Assign</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithSeatBookingList || startWithSeatRelease ? 'active-item': ''}" th:href="@{${seatBookingList}}" th:if="${menuAuthorizer.canViewSeat}"><i class="bi bi-calendar-minus me-2"></i>Seat Release</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithSeatBookingLog ? 'active-item': ''}" th:href="@{${seatBookingLog}}" th:if="${menuAuthorizer.canViewSeat}"><i class="bi bi-clock-history me-2"></i>Seat Booking Log</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewResidenceAttendanceMenu}"
+        th:with="startWithResidenceAttendanceSheetList=${#request.requestURI.startsWith(residenceAttendanceSheetList)},
+                   startWithResidenceAttendanceSheetEntry=${#request.requestURI.startsWith(residenceAttendanceSheetEntry)},
+                   startWithResidenceAttendanceEntry=${#request.requestURI.startsWith(residenceAttendanceEntry)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#residence-attendance-collapse"
+         th:classappend="${startWithResidenceAttendanceSheetList ? 'active' : (startWithResidenceAttendanceSheetEntry ? 'active' : (startWithResidenceAttendanceEntry ? 'active' : ''))}"
+         th:attr="aria-expanded=${startWithResidenceAttendanceSheetList ? 'ture': (startWithResidenceAttendanceSheetEntry ? 'true' : (startWithResidenceAttendanceEntry ? 'true' : 'false'))}">
+        <i class="bi bi-calendar-check me-2"></i>Attendance</a>
+      <div id="residence-attendance-collapse" class="collapse" th:classappend="${startWithResidenceAttendanceSheetList ? 'show' : (startWithResidenceAttendanceSheetEntry ? 'show' : (startWithResidenceAttendanceEntry ? 'show' : ''))}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithResidenceAttendanceSheetEntry || startWithResidenceAttendanceEntry ? 'active-item' : ''}" th:href="@{${residenceAttendanceSheetEntry}}" th:if="${menuAuthorizer.canCreateResidenceAttendance}"><i class="bi bi-bookmark-plus me-2"></i>Entry</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithResidenceAttendanceSheetList ? 'active-item' : ''}" th:href="@{${residenceAttendanceSheetList}}" th:if="${menuAuthorizer.canViewResidenceAttendance}"><i class="bi bi-bookmark-plus me-2"></i>List</a></li>
+          <li><a href="#" class="link-dark" th:if="${menuAuthorizer.canGenerateResidenceAttendanceReport}"><i class="bi bi-bar-chart me-2"></i>Report</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item align-items-center" th:if="${menuAuthorizer.canViewResidenceDisciplineMenu}"
+        th:with="startWithCaseEntry=${#request.requestURI.startsWith(caseEntry)},
+                 startWithCaseList=${#request.requestURI.startsWith(caseList)}">
+      <a aria-current="page" class="nav-link btn-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#residence-discipline-collapse"
+         th:classappend="${startWithCaseEntry ? 'active': (startWithCaseList ? 'active' : '')}"
+         th:attr="aria-expanded=${startWithCaseEntry ? 'true': (startWithCaseList ? 'true' : 'false')}">
+        <i class="bi bi-patch-exclamation me-2"></i>Discipline</a>
+      <div id="residence-discipline-collapse" class="collapse" th:classappend="${startWithCaseEntry ? 'show' : (startWithCaseList ? 'show' : '')}">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
+          <li><a href="#" class="link-dark" th:classappend="${startWithCaseEntry ? 'active-item': ''}" th:href="@{${caseEntry}}" th:if="${menuAuthorizer.canCreateResidenceDiscipline}"><i class="bi bi-bookmark me-2"></i>Case Entry</a></li>
+          <li><a href="#" class="link-dark" th:classappend="${startWithCaseList ? 'active-item': ''}" th:href="@{${caseList}}" th:if="${menuAuthorizer.canViewResidenceDiscipline}"><i class="bi bi-journal-bookmark me-2"></i>Case List</a></li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+
+</div>
+</body>
+
+</html>

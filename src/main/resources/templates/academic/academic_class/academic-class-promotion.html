@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Academic Class Promotion</h4>
+<th:block layout:fragment="content">
+    <form th:object="${academicClassPromotion}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Class Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label red-star">Institution:</label>
+                        <input class="form-control" th:value="${academicClass.institution.name}" readonly>
+                        <input type="hidden" th:value="${academicClass.id}" name="preAcademicClass">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Class:</label>
+                        <input class="form-control" th:value="${academicClass.clazz.name}" readonly>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Group:</label>
+                        <input class="form-control" th:value="${academicClass.classGroup}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Section:</label>
+                        <input class="form-control" th:value="${academicClass.section}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Session (Year):</label>
+                        <input class="form-control" th:value="${academicClass.session}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header d-flex">
+                <h5 class="text-primary me-3">Quantaa List</h5>
+                <span th:if="${#fields.hasErrors('studentList')}" th:errorclass="error" th:errors="*{studentList}"></span>
+            </div>
+            <div class="card-body">
+                <div class="col">
+                    <table class="table table-bordered" id="student-list">
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Promoted To</h5>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label red-star">Institution:</label>
+                    <div class="col-md-4">
+                        <select class="form-control" onchange="loadClassList(this.value)">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:value="${institution.id}" th:text="${institution.name}"></option>
+                        </select>
+                    </div>
+                    <label class="col-md-2 form-label red-star">Class:<span class="text-danger">*</span></label>
+                    <div class="col-md-4">
+                        <select class="form-select" id="class-to" th:field="*{newAcademicClass}" disabled>
+                            <option value="">-Select Institution First-</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('newAcademicClass')}" th:errorclass="error"
+                              th:errors="*{newAcademicClass}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-4">Save</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function loadClassList(id) {
+            const classEl = document.getElementById("class-to");
+            if (id === "0") {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    classEl.innerHTML = data;
+                });
+            }
+        }
+
+        function selectAll(check) {
+            const rows = document.getElementById('student-list').querySelectorAll("input[type='checkbox']");
+            for (const row of rows) {
+                row.checked = check;
+            }
+        }
+
+        function setSession(el) {
+            const info = el.options[el.selectedIndex].text.split(" ");
+            const session = info[info.length - 1]
+            document.getElementById("session").value = session.substring(1, session.length - 1);
+        }
+
+        (() => {
+            const studentList = /*[[${academicClass.studentList}]]*/'';
+            const currentStudent = /*[[${currentStudent}]]*/'';
+            const promotionList = /*[[${promotionList}]]*/'';
+            let flag = false;
+            let index = 0;
+            const el = document.getElementById('student-list');
+            let table = `<tr>
+                               <th><input onclick="selectAll(this.checked)" class="form-check-input" type="checkbox"></th>
+                               <th>Quantaa ID</th>
+                               <th>Quantaa Name</th>
+                               <th>Quantaa Status</th>
+                               <th>Remarks</th>
+                           </tr>`;
+            for (const std of studentList) {
+                if (std.status === currentStudent) {
+                    flag = true;
+                    table += `<tr>
+                                ${!promotionList ? '<td><input class="form-check-input" name="studentList[' + index + '].isPromotion" type="checkbox"></td>'
+                        : promotionList[index].isPromotion ? '<td><input class="form-check-input" name="studentList[' + index + '].isPromotion" type="checkbox" checked></td>'
+                            : '<td><input class="form-check-input" name="studentList[' + index + '].isPromotion" type="checkbox"></td>'}
+                               <input type="hidden" name="studentList[${index}].studentId" value="${std.student.id}">
+                               <td>${std.student.studentId}</td>
+                               <td>${std.student.applicant.nameEn}</td>
+                               <td>${std.status}</td>
+                               <td>${std.remarks}</td>
+                           </tr>`;
+                    index++;
+                }
+            }
+            if (flag) {
+                el.innerHTML = table;
+            } else {
+                el.innerHTML = `<div class="text-center">No student added to this class yet</div>`;
+            }
+        })();
+    </script>
+</th:block>
+</body>
+</html>

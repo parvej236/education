@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+<body>
+<h4 layout:fragment="content-header">Academic Current Class List</h4>
+<th:block layout:fragment="content">
+    <div id="filter" class="m-3">
+        <div class="row mb-3">
+            <select class="form-select" name="institution" onchange="loadClassList(this.value)">
+                <option value="">Search by institution</option>
+                <option th:each="institution : ${institutionList}" th:text="${institution.name}"
+                        th:value="${institution.id}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="class" name="clazz" disabled>
+                <option value="">-Select Institution First-</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="classGroup">
+                <option value="">Search by group</option>
+                <option th:each="group : ${groupList}" th:value="${group}" th:text="${group}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="section">
+                <option value="">Search by section</option>
+                <option th:each="section : ${sectionList}" th:value="${section}" th:text="${section}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <input class="form-control" id="session" name="session" placeholder="Search by session">
+        </div>
+    </div>
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th class="col-md-1" data-column-name='action'>Action</th>
+            <th class="col-md-3" data-column-name='institution.name' sortable="true">Institution</th>
+            <th class="col-md-1" data-column-name='clazz.name'>Class</th>
+            <th class="col-md-2" data-column-name='classGroup'>Group</th>
+            <th class="col-md-3" data-column-name='section'>Section</th>
+            <th class="col-md-2" data-column-name='session'>Session</th>
+        </tr>
+        </thead>
+    </table>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const table = new DataTable('#table', {
+            omniPlaceholder: "Search academic class",
+            filterEnabled: true,
+            filterSelector: "filter",
+            formatter: {
+                action: (el, column, rowData) => {
+                    const entryUrl = /*[[${entryUrl}]]*/ '/academic/class-subject-assign';
+                    el.innerHTML = `<a href="${entryUrl}?id=${rowData.id}"
+                    id="editButton" class="btn btn-secondary btn-sm" type="button">
+                    Promotion
+                    </a>`
+                },
+            }
+        });
+
+        function loadClassList(id) {
+            const classEl = document.getElementById("class");
+            if (id === '0') {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    document.getElementById("class").innerHTML = data;
+                });
+            }
+        }
+
+        // (() => {
+        //     document.getElementById("session").value =  new Date().getFullYear();
+        // })();
+    </script>
+</th:block>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

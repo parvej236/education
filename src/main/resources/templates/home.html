@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Home</title>
+</head>
+<body>
+<h4 layout:fragment="content-header" th:text="#{label.home}">home title</h4>
+<div layout:fragment="content">
+    <div class="border rounded-2 bg-white p-3 mb-4">
+        Welcome to Quantum Education Service
+    </div>
+</div>
+</body>
+</html>

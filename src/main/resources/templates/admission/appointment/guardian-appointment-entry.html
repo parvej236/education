@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${guardianAppointment.id > 0 ? 'Update Guardian Appointment' : 'Guardian Appointment Entry'}"></h4>
+<th:block layout:fragment="content">
+    <form class="position-relative" th:action="${entryUrl}" th:object="${guardianAppointment}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+
+        <div class="row">
+            <div class="col-7">
+                <div class="row" th:if="${guardianAppointment.id == null}">
+                    <div class="col">
+                        <div class="input-group">
+                            <input class="form-control student-search" id="studentSearch"
+                                   placeholder="Search by name or quantaa ID"
+                                   autocomplete="off"
+                                   data-search-url="/admission/get-student-by-name-or-quanta-id?nameOrQuantaaId=">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <span onclick="clearStudent()" class="input-group-text rounded-end" role="button" style="cursor:pointer;">Clear</span>
+                        </div>
+                        <span th:if="${#fields.hasErrors('student')}" th:errorclass="error" th:errors="*{student}"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 mt-3">
+                    <div class="col-3">
+                        <img th:id="image" alt="image"
+                             style="width: 35mm; height: 42mm; border: 2px solid #333; display: none;"/>
+                    </div>
+                    <div class="col-9">
+                        <div class="row mb-1">
+                            <div class="fw-bold" id="studentInfo"></div>
+                            <input type="hidden" id="studentRowId" th:field="*{student.id}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h5 class="card-header text-primary">Guardian Appointment Details</h5>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Date:<span class="text-danger">*</span></label>
+                                <input class="form-control" id="appointment-date" th:field="*{appointmentOn}">
+                                <span th:if="${#fields.hasErrors('appointmentOn')}" th:errorclass="error" th:errors="*{appointmentOn}"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Number of Guardian:<span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" th:field="*{numberOfGuaridian}">
+                                <span th:if="${#fields.hasErrors('numberOfGuaridian')}" th:errorclass="error" th:errors="*{numberOfGuaridian}"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Responsible Person:</label>
+                                <input class="form-control" th:field="*{responsiblePerson}">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label ">Appointment Reason:<span class="text-danger">*</span></label>
+                                <select class="form-control" th:field="*{reason}">
+                                    <option value="0"></option>
+                                    <option value="Meet with Quantaa">Meet with Quantaa</option>
+                                    <option value="Quantaa Counseling">Quantaa Counseling</option>
+                                    <option value="Medical services">Medical services</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                                <span th:if="${#fields.hasErrors('reason')}" th:errorclass="error" th:errors="*{reason}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label">Remarks:</label>
+                                <textarea class="form-control" th:field="*{remarks}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-5">
+                <div id="guardian-table" style="display: none">
+                    <span th:if="${#fields.hasErrors('guardians')}" th:errorclass="error" th:errors="*{guardians}"></span>
+                    <table class="table table-bordered rounded me-0">
+                        <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Image</th>
+                            <th class="text-center">Guardian Details</th>
+                        </tr>
+                        </thead>
+                        <tbody id="guardian-details-row"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3 mb-3" name="action"
+                th:value="${guardianAppointment.id == null ? 'new' : 'update'}"
+                th:text="${guardianAppointment.id == null ? 'Save' : 'Update'}"
+                th:if="${menuAuthorizer.canCreateAppointment}">
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function renderStudent(el, student) {
+            return `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div>${student.applicant.nameEn} - ${student.studentId}</div>
+                        <div>${student.applicant.nameBn}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectStudent(el, student) {
+            const id = /*[[${guardianAppointment.id}]]*/'';
+            loadImage(student);
+            document.querySelector('#studentInfo').innerHTML = student.studentInfo;
+            document.querySelector('#studentRowId').value = student.id;
+            if (!id) {
+                document.querySelector('.student-search').value = "";
+            }
+            loadGuardianList(student.id);
+            setTimeout(guardianReindex, 500);
+        }
+
+        function clearStudent() {
+            const id = /*[[${guardianAppointment.id}]]*/'';
+            if (!id) {
+                document.querySelector('.student-search').value = "";
+                document.querySelector('#studentInfo').innerText = "";
+                document.querySelector('#studentRowId').value = "";
+                document.querySelector('.student-search').focus();
+                document.querySelector('#image').style.display = 'none';
+            }
+        }
+
+        function loadImage(student) {
+            const path = student.applicant.imagePath;
+            const url = '/admission/applicant/image/download';
+            const dummy_male = '/resources/img/dummy_male.jpg';
+            const dummy_female = '/resources/img/dummy_female.jpg';
+
+            if (path) {
+                fetch(generateRequestURL(url, {path: path}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.querySelector('#image').src = image.data;
+                    });
+            } else {
+                const gender = student.applicant.gender;
+                let imagePath;
+                if (gender === 'Male') {
+                    imagePath = dummy_male;
+                } else {
+                    imagePath = dummy_female;
+                }
+                document.querySelector('#image').src = imagePath;
+            }
+            document.querySelector('#image').style.display = 'block';
+        }
+
+        function loadGuardianList(id) {
+            let guardianListUrl = /*[[${guardianListUrl}]]*/'';
+            fetch(guardianListUrl + '?id=' + id)
+                .then(response => response.json())
+                .then(guardianList => {
+                    showGuardianList(guardianList);
+                });
+        }
+
+        function showGuardianList(guardianList) {
+            let guardianTable = ``;
+            const url = '/admission/guardian/image/download';
+            const dummy_male = '/resources/img/dummy_male.jpg';
+            document.querySelector('#guardian-table').style.display = 'block';
+
+            if (guardianList.length > 0) {
+                guardianList.forEach((guardian, index) => {
+                    const path = guardian.imagePath;
+                    const guardians = /*[[${guardianAppointment.guardians}]]*/'';
+
+                    fetch(generateRequestURL(url, {path: path}))
+                        .then(response => response.json())
+                        .then(image => {
+                            let isSelected = false;
+
+                            if (guardians !== null){
+                                guardians.forEach(g => {
+                                    if (g.id === guardian.id){
+                                        isSelected = true;
+                                    }
+                                });
+                            }
+
+                            if (image.data == null) {
+                                image.data = dummy_male;
+                            }
+
+                            guardianTable += `<tr><td class="col-1 align-content-center text-center">
+                                        <input class="select-guardian" style="cursor:pointer;" onchange="guardianReindex()" class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''}>
+                                        <input class="guardian_id" type="hidden" value="${guardian.id}"></td>
+                                    <td style="width: 26mm"><img class="col-1" style="width: 21mm; height: 25mm;" src="${image.data}"></td>
+                                    <td>
+                                        <span><span class="fw-bold">Name:</span> ${guardian.nameEn}</span><br>
+                                        <span><span class="fw-bold">Relation:</span> ${guardian.relation}</span><br>
+                                        <span><span class="fw-bold">${guardian.indentityType}:</span> ${guardian.indentityNumber}</span><br>
+                                        <span><span class="fw-bold">Phone:</span> ${guardian.primaryPhone}</span><br>
+                                    </td>
+                                  </tr>`;
+                            document.querySelector('#guardian-details-row').innerHTML = guardianTable;
+                        });
+                });
+            } else {
+                guardianTable += `<tr><td colspan="3" class="text-center fw-bold">No guardian added yet!</td></tr>`;
+                document.querySelector('#guardian-details-row').innerHTML = guardianTable;
+            }
+        }
+
+        function guardianReindex() {
+            let rows = document.querySelector('#guardian-details-row').querySelectorAll('tr');
+            let index = 0;
+            rows.forEach(row => {
+                const checkbox = row.querySelector(".select-guardian");
+                if (checkbox.checked) {
+                    row.querySelector('.guardian_id').setAttribute('name', `guardians[${index}].id`);
+                    index++;
+                } else {
+                    row.querySelector('.guardian_id').removeAttribute('name');
+                }
+            });
+        }
+
+        (() => {
+            const student = /*[[${guardianAppointment.student}]]*/'';
+
+            if (student.id !== null) {
+                selectStudent(null, student);
+            }else {
+                document.querySelector('#studentSearch').focus();
+                new AutoComplete(document.querySelector('#studentSearch'), renderStudent, selectStudent);
+            }
+
+            const appointmentDate = document.querySelector('#appointment-date');
+            applyDatepicker(appointmentDate, appointmentDate.value);
+        })();
+    </script>
+</th:block>
+</body>
+</html>

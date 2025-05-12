@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${room.id > 0} ? #{room.form.update.title} : #{room.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${room}" th:action="${entryLink}" method="post" onsubmit="return validateSeatInput()">
+
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header text-primary">Room Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label red-star" for="code">Code:<span class="text-danger">*</span></label>
+                        <input id="code" class="form-control" th:field="*{code}">
+                        <input type="hidden" th:field="*{id}">
+                        <span th:if="${#fields.hasErrors('code')}" th:errorclass="error"
+                              th:errors="*{code}"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="description">Description:<span class="text-danger">*</span></label>
+                        <input id="description" class="form-control" th:field="*{description}">
+                        <span th:if="${#fields.hasErrors('description')}" th:errorclass="error"
+                              th:errors="*{description}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="hall">Hall:<span class="text-danger">*</span></label>
+                        <select id="hall" class="form-select" th:field="*{hall.id}">
+                            <option value="">-Please Select-</option>
+                            <option th:each="hall : ${hallList}" th:value="${hall.id}"
+                                    th:text="${hall.name}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('hall.id')}" th:errorclass="error"
+                              th:errors="*{hall.id}"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="capacity">Capacity:</label>
+                        <input id="capacity" class="form-control" th:field="*{capacity}" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header text-primary">Seat Information</h5>
+            <div class="card-body">
+                <div class="table-container table-responsive">
+                    <table class="table table-bordered table-responsive" id="seatTable">
+                        <thead>
+                        <tr class="table-secondary text-center">
+                            <th>SL</th>
+                            <th>Seat Code</th>
+                            <th>Status</th>
+                            <th>Seat Description</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${room.id != null}" th:each="seat : ${room.seats}">
+                            <td th:text="${seatStat.index+1}" class="text-center"></td>
+                            <td><input type="text" th:field="*{seats[__${seatStat.index}__].seatCode}" class="form-control seat-code">
+                                <input type="hidden" th:field="*{seats[__${seatStat.index}__].id}">
+                                <div class="text-danger error-message"></div>
+                            </td>
+                            <td>
+                                <span th:if="${room.seats[__${seatStat.index}__].status == 'booked'}">Booked</span>
+                                <input type="hidden" th:if="${room.seats[__${seatStat.index}__].status == 'booked'}"
+                                       th:field="*{seats[__${seatStat.index}__].status}" th:value="'booked'">
+
+                                <select th:if="${seat.status != 'booked'}" th:field="*{seats[__${seatStat.index}__].status}" class="form-select">
+                                    <option value="inactive" th:selected="${seat.status == 'inactive'}">Inactive</option>
+                                    <option value="free" th:selected="${seat.status == 'free'}">Free</option>
+                                    <option value="off" th:selected="${seat.status == 'off'}">Off</option>
+                                </select>
+                            </td>
+                            <td><input type="text" th:field="*{seats[__${seatStat.index}__].seatDescription}" class="form-control"></td>
+                            <td class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-danger bi-trash-fill"
+                                        th:disabled="${room.seats[__${seatStat.index}__].status == 'booked' || #lists.size(room.seats) == 1}" onclick="deleteRow(this)">
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-start">
+                        <span class="btn btn-outline-success" onclick="addRow()"
+                        th:if="${room.id > 0}">Add Row</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-start mb-4">
+            <button type="submit" class="btn btn-primary" th:name="action" th:value="${room.id > 0} ? 'update' : 'new'"
+                    th:text="${room.id > 0} ? 'Update' : 'Save'" onclick="if (this.value === 'new') generateRows();" th:if="${menuAuthorizer.canCreateResidenceReference}"></button>
+        </div>
+    </form>
+
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        let totalCapacity = document.querySelectorAll('#seatTable tbody tr').length;
+        let capacityInput = document.getElementById('capacity');
+        capacityInput.value = totalCapacity;
+
+        function generateRows() {
+            const capacity = document.getElementById('capacity').value;
+            const tableBody = document.querySelector('#seatTable tbody');
+            const roomCode = document.getElementById('code').value;
+
+
+            for (let i = 0; i < capacity; i++) {
+                const row = document.createElement('tr');
+
+                const seatCode = `${roomCode}-${i + 1}`;
+
+                row.innerHTML =`
+                    <td class="text-center">${i + 1}</td>
+                <td>
+                    <input type="text" name="seats[${i}].seatCode" class="form-control seat-code" value="${seatCode}">
+                    <div class="text-danger error-message"></div>
+                </td>
+                <td>
+                    <select name="seats[${i}].status" class="form-select">
+                        <option value="inactive">Inactive</option>
+                        <option value="free" selected>Free</option>
+                        <option value="off">Off</option>
+                    </select>
+                </td>
+                <td><input type="text" name="seats[${i}].seatDescription" class="form-control"></td>
+                <td class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-danger bi-trash-fill" onclick="deleteRow(this)"></button>
+                </td>
+            `;
+
+                tableBody.appendChild(row);
+            }
+        }
+
+
+        function addRow() {
+            const tableBody = document.querySelector('#seatTable tbody');
+            const rowCount = tableBody.rows.length;
+            const roomCode = document.getElementById('code').value;
+
+            const row = document.createElement('tr');
+            const seatCode = `${roomCode}-${rowCount + 1}`;
+
+            row.innerHTML = `
+        <td class="text-center">${rowCount + 1}</td>
+        <td>
+            <input type="text" name="seats[${rowCount}].seatCode" class="form-control seat-code" value="${seatCode}">
+            <div class="text-danger error-message"></div>
+        </td>
+        <td>
+            <select name="seats[${rowCount}].status" class="form-select">
+                <option value="inactive">Inactive</option>
+                <option value="free" selected>Free</option>
+                <option value="off">Off</option>
+            </select>
+        </td>
+        <td><input type="text" name="seats[${rowCount}].seatDescription" class="form-control"></td>
+        <td class="d-flex justify-content-end">
+            <button type="button" class="btn btn-danger bi-trash-fill" onclick="deleteRow(this)"></button>
+        </td>
+    `;
+
+            tableBody.appendChild(row);
+        }
+
+
+        function validateSeatInput() {
+            clearErrorMessages();
+            let isValid = true;
+            const seatCodes = [];
+            const rows = document.querySelectorAll('#seatTable tbody tr');
+
+            rows.forEach((row) => {
+                const seatCode = row.querySelector('.seat-code');
+                const seatCodeValue = seatCode.value.trim();
+                const errorMessageDiv = row.querySelector('.error-message');
+
+                if (!seatCodeValue) {
+                    errorMessageDiv.textContent = "Seat code cannot be empty";
+                    isValid = false;
+                } else if (seatCodes.includes(seatCodeValue)) {
+                    errorMessageDiv.textContent = `Duplicate seat code: ${seatCodeValue}`;
+                    isValid = false;
+                } else {
+                    seatCodes.push(seatCodeValue);
+                }
+            });
+
+            return isValid;
+        }
+
+        function clearErrorMessages() {
+            document.querySelectorAll('.error-message').forEach(errorDiv => {
+                errorDiv.textContent = '';
+            });
+        }
+
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateRowIndexes();
+        }
+
+        function updateRowIndexes() {
+            const rows = document.querySelectorAll('#seatTable tbody tr');
+            rows.forEach((row, index) => {
+                row.querySelector('td:first-child').textContent = index + 1;
+
+                row.querySelectorAll('input, select').forEach((value) => {
+                    const name = value.getAttribute('name');
+                    const updatedName = name.replace(/\[\d+\]/gm, `[${index}]`);
+                    value.setAttribute('name', updatedName);
+                });
+            });
+
+            totalCapacity = rows.length;
+        }
+
+    </script>
+</th:block>
+</body>
+</html>

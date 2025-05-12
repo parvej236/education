@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header" th:text="${exam.id > 0} ? #{exam.form.update.title} : #{exam.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form method="post" th:object="${exam}" th:action="${entryLink}">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Exam Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label red-star">Exam Name:<span class="text-danger">*</span></label>
+                    <div class="col-md-10 mb-1">
+                        <input type="text" class="form-control" th:field="*{name}">
+                        <input type="hidden" th:field="*{id}">
+                        <span th:if="${#fields.hasErrors('name')}" th:errorclass="error"
+                              th:errors="*{name}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label">Status:</label>
+                    <div class="col-md-10 mb-1">
+                        <input id="active" type="radio" th:field="*{status}" value="1">
+                        <label for="active" class="me-4">Active</label>
+                        <input id="inactive" type="radio" th:field="*{status}" value="0">
+                        <label for="inactive">Inactive</label>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label">Remarks:</label>
+                    <div class="col-md-10 mb-1">
+                        <textarea type="text" class="form-control" th:field="*{remarks}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary"
+                th:name="action" th:value="${exam.id > 0} ? 'update' : 'new'"
+                th:text="${exam.id > 0} ? 'Update' : 'Save'"
+                th:if="${menuAuthorizer.canCreateAcademicReference}">
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+</body>
+</html>

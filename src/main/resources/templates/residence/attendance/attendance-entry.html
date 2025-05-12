@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Residence Attendance</h4>
+<th:block layout:fragment="content">
+    <form th:action="${entryUrl}" th:object="${attendanceSheet}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Attendance Sheet</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Attendance Type:</label>
+                        <input class="form-control" th:value="${attendanceSheet.type}" readonly>
+                        <input type="hidden" th:value="${attendanceSheet.id}" name="id">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date:</label>
+                        <input class="form-control" th:value="${attendanceSheet.date}" readonly>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Institution:</label>
+                        <input class="form-control" th:value="${attendanceSheet.institution}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Class:</label>
+                        <input class="form-control" th:value="${attendanceSheet.classInfo}" readonly>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Attendance</h5>
+            <div class="card-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered" id="table"></table>
+                </div>
+            </div>
+        </div>
+
+        <button th:if="${attendanceSheet.status == null && menuAuthorizer.canCreateResidenceAttendance}" type="submit" class="btn btn-primary mb-4" name="action"
+                value="0">Save
+        </button>
+        <button th:if="${attendanceSheet.status == 1 && menuAuthorizer.canCreateResidenceAttendance}" type="submit" class="btn btn-primary mb-4" name="action"
+                value="1">Update
+        </button>
+        <button th:if="${attendanceSheet.status == 1 && menuAuthorizer.canCreateResidenceAttendance}" type="submit" class="btn btn-success mb-4 ms-2" name="action"
+                value="2">Submit
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function toggleCauseField(value, index) {
+            const el = document.getElementById('cause' + index);
+            if (value !== "Present") {
+                el.removeAttribute("disabled");
+            } else {
+                el.setAttribute('disabled', 'true');
+                el.value = "";
+            }
+        }
+
+        (() => {
+            const studentList = /*[[${attendanceSheet.academicClass.studentList}]]*/'';
+            const statusList = /*[[${attendanceSheet.statusList}]]*/'';
+            const currentQuantaa = /*[[${currentQuantaa}]]*/'';
+            const status = /*[[${attendanceSheet.status}]]*/'';
+            const el = document.getElementById('table');
+            let flag = false;
+            let index = 0;
+            let table = `<tr>
+                            <th class="text-center">SL</th>
+                            <th>Quantaa ID</th>
+                            <th>Quantaa Name</th>
+                            <th>Attendance</th>
+                            <th>Absent Cause</th>
+                         </tr>`;
+
+            if (status === null) {
+                for (const std of studentList) {
+                    if (std.status === currentQuantaa) {
+                        flag = true;
+                        table += `<tr>
+                                <td class="text-center align-middle">${index + 1}</td>
+                                <td class="align-middle">${std.student.studentId}</td>
+                                <td class="align-middle">${std.student.applicant.nameEn}</td>
+                                <input type="hidden" name="statusList[${index}].studentId" value="${std.student.id}">
+                                <input type="hidden" name="statusList[${index}].studentName" value="${std.student.applicant.nameEn}">
+                                <input type="hidden" name="statusList[${index}].quantaaId" value="${std.student.studentId}">
+                                <td>
+                                    <select class="form-select" name="statusList[${index}].attendanceStatus" onchange="toggleCauseField(this.value, ${index})">
+                                        <option value="Present" selected>Present</option>
+                                        <option value="Treatment in Shafian"> Treatment in Shafian</option>
+                                        <option value="Higher Treatment">Higher Treatment</option>
+                                        <option value="Sport">Sport</option>
+                                        <option value="Program">Program</option>
+                                        <option value="Residence">Residence</option>
+                                        <option value="Leave">Leave</option>
+                                        <option value="Absent">Absent</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control" name="statusList[${index}].absentCause" id="cause${index}" disabled>
+                                </td>
+                            </tr>`;
+                        index++;
+                    }
+                }
+            } else if (status === 1) {
+                flag = true;
+                for (const status of statusList) {
+                    table += `<tr>
+                                <td class="align-middle text-center">${index + 1}</td>
+                                <td class="align-middle">${status.quantaaId}</td>
+                                <td class="align-middle">${status.studentName}</td>
+                                <input type="hidden" name="statusList[${index}].studentId" value="${status.studentId}">
+                                <input type="hidden" name="statusList[${index}].studentName" value="${status.studentName}">
+                                <input type="hidden" name="statusList[${index}].quantaaId" value="${status.quantaaId}">
+                                <input type="hidden" name="statusList[${index}].id" value="${status.id}">
+                                <td>
+                                    <select class="form-select" name="statusList[${index}].attendanceStatus" value="${status.attendanceStatus}" onchange="toggleCauseField(this.value, ${index})">
+                                        <option value="Present" ${status.attendanceStatus === 'Present' ? 'selected' : ''}>Present</option>
+                                        <option value="Treatment in Shafian" ${status.attendanceStatus === 'Treatment in Shafian' ? 'selected' : ''}>Treatment in Shafian</option>
+                                        <option value="Higher Treatment" ${status.attendanceStatus === 'Higher Treatment' ? 'selected' : ''}>Higher Treatment</option>
+                                        <option value="Sport" ${status.attendanceStatus === 'Sport' ? 'selected' : ''}>Sport</option>
+                                        <option value="Program" ${status.attendanceStatus === 'Program' ? 'selected' : ''}>Program</option>
+                                        <option value="Residence" ${status.attendanceStatus === 'Residence' ? 'selected' : ''}>Residence</option>
+                                        <option value="Leave" ${status.attendanceStatus === 'Leave' ? 'selected' : ''}>Leave</option>
+                                        <option value="Absent" ${status.attendanceStatus === 'Absent' ? 'selected' : ''}>Absent</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    ${status.absentCause === null ? `<input class="form-control" name="statusList[${index}].absentCause" id="cause${index}" disabled>`
+                        : `<input class="form-control" name="statusList[${index}].absentCause" id="cause${index}" value="${status.absentCause}">`}
+                                </td>
+                            </tr>`;
+                    index++;
+                }
+            } else {
+                flag = true;
+                for (const status of statusList) {
+                    table += `<tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td>${status.quantaaId}</td>
+                                <td>${status.studentName}</td>
+                                <td>${status.attendanceStatus}</td>
+                                <td>${status.absentCause === null ? '' : status.absentCause}</td>
+                            </tr>`;
+                    index++;
+                }
+            }
+
+            if (flag) {
+                el.innerHTML = table;
+            } else {
+                el.innerHTML = `<div class="text-center">No student added to this class yet</div>`;
+            }
+        })();
+    </script>
+</th:block>
+</body>
+</html>

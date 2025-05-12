@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="#{examination.exam.marks.list.title}"></h4>
+<th:block layout:fragment="content">
+    <div id="filter" class="m-3">
+        <div class="row mb-3">
+            <select class="form-select" name="institution" onchange="loadClassInfo(this.value)">
+                <option value="0">Search by institution</option>
+                <option th:each="institution : ${institutionList}" th:value="${institution.id}"
+                        th:text="${institution.name}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="classInfo" name="academicClass" onchange="loadSubject(this.value)" disabled>
+                <option value="0">-Select Institution First-</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="subject" name="subject" disabled>
+                <option value="0">-Select Class First-</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="exam">
+                <option value="">Search by exam</option>
+                <option th:each="exam : ${examList}" th:value="${exam.id}" th:text="${exam.name}"></option>
+            </select>
+        </div>
+    </div>
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th data-column-name='action'>open</th>
+            <th data-column-name='academicClass.institution.name' sortable="true">Institution</th>
+            <th data-column-name='classInfo'>Class</th>
+            <th data-column-name='exam.name'>Exam</th>
+            <th data-column-name='subject.name'>Subject</th>
+        </tr>
+        </thead>
+    </table>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const hasPermission = /*[[${menuAuthorizer.canManageExamMarkSheet}]]*/'';
+        const table = new DataTable('#table', {
+            omniPlaceholder: "Search exam mark sheet",
+            filterEnabled: true,
+            filterSelector: "filter",
+            formatter: {
+                action: (el, column, rowData) => {
+                    const entryUrl = /*[[${entryUrl}]]*/'';
+                    el.innerHTML = `<a href="${entryUrl}?id=${rowData.id}" class="btn btn-secondary btn-sm" type="button">Open</a>`;
+                },
+                classInfo: (el, column, rowData) => {
+                    if (rowData.academicClass.classGroup === "" || rowData.academicClass.section === "") {
+                        if (rowData.academicClass.classGroup === "" && rowData.academicClass.section === "") {
+                            el.innerText = `${rowData.academicClass.clazz.name} (${rowData.academicClass.session})`
+                        }
+
+                        if (rowData.academicClass.classGroup === "" && rowData.academicClass.section !== "") {
+                            el.innerText = `${rowData.academicClass.clazz.name}, ${rowData.academicClass.section} (${rowData.academicClass.session})`
+                        }
+
+                        if (rowData.academicClass.classGroup !== "" && rowData.academicClass.section === "") {
+                            el.innerText = `${rowData.academicClass.clazz.name}, ${rowData.academicClass.classGroup} (${rowData.academicClass.session})`
+                        }
+                    } else {
+                        el.innerText = `${rowData.academicClass.clazz.name}, ${rowData.academicClass.classGroup}, ${rowData.academicClass.section} (${rowData.academicClass.session})`
+                    }
+                }
+            },
+            events: {
+                createNew: (e, rowData) => {
+                    if (hasPermission) {
+                        window.location = '/academic/exam-mark-sheet-entry';
+                    }
+                }
+            },
+            buttonSection: hasPermission ? [
+                {
+                    name: 'createNew',
+                    label: 'Add Mark Sheet',
+                    classes: 'btn btn-primary'
+                }
+            ] : null
+        });
+
+        function loadClassInfo(id) {
+            const classInfo = document.getElementById("classInfo");
+            if (id === '0') {
+                classInfo.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classInfo.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classInfoList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classInfo.removeAttribute('disabled');
+                    document.getElementById("classInfo").innerHTML = data;
+                });
+            }
+        }
+
+        function loadSubject(id) {
+            const subject = document.getElementById("subject");
+            if (id === '0') {
+                subject.innerHTML = "<option value=''>-Select Class First-</option>";
+                subject.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${subjectList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    subject.removeAttribute('disabled');
+                    document.getElementById("subject").innerHTML = data;
+                });
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

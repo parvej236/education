@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Attendance Sheet Entry</h4>
+<th:block layout:fragment="content">
+    <form th:object="${attendanceSheet}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Attendance Sheet</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="type">Attendance Type:<span class="text-danger">*</span></label>
+                        <select id="type" class="form-select" th:field="*{type}">
+                            <option value="">-Please Select-</option>
+                            <option th:each="type : ${attendanceTypes}" th:value="${type.title}"
+                                    th:text="${type.title}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('type')}" th:errorclass="error" th:errors="*{type}"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="date">Date:<span class="text-danger">*</span></label>
+                        <input class="form-control" id="date" th:field="*{date}" placeholder="Select Date">
+                        <span th:if="${#fields.hasErrors('date')}" th:errorclass="error" th:errors="*{date}"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Institution:<span class="text-danger">*</span></label>
+                        <select class="form-select"
+                                onchange="loadClassList(this.value); setTextAsValue(this, 'institution')">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:text="${institution.name}"
+                                    th:value="${institution.id}"></option>
+                        </select>
+                        <input type="hidden" id="institution" th:field="*{institution}">
+                        <span th:if="${#fields.hasErrors('institution')}" th:errorclass="error"
+                              th:errors="*{institution}"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label red-star" for="class">Class:<span class="text-danger">*</span></label>
+                        <select id="class" class="form-select" th:field="*{academicClass.id}"
+                                onchange="setTextAsValue(this, 'classInfo')" disabled>
+                            <option value="0">-Select Institution First-</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('academicClass.id')}" th:errorclass="error"
+                              th:errors="*{academicClass.id}"></span>
+                        <input type="hidden" id="classInfo" th:field="*{classInfo}">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function loadClassList(id) {
+            const classEl = document.getElementById("class");
+            if (id === '0') {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    document.getElementById("class").innerHTML = data;
+                });
+            }
+        }
+
+        function setTextAsValue(el, id) {
+            if (el.value !== '0'){
+                document.getElementById(id).value = el.options[el.selectedIndex].text;
+            }else{
+                document.getElementById(id).value = '';
+            }
+        }
+
+        (() => {
+            const dateEl = document.getElementById('date');
+            applyDatepicker(dateEl, dateEl.value);
+            const date = new Date();
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            dateEl.value = `${day}/${month}/${year}`;
+        })();
+    </script>
+</th:block>
+</body>
+</html>

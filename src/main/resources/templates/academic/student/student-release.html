@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Student Release</h4>
+<th:block layout:fragment="content">
+    <form th:object="${releaseClass}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Class Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label red-star">Institution:</label>
+                        <input class="form-control" th:value="${academicClass.institution.name}" readonly>
+                        <input type="hidden" th:value="${academicClass.id}" name="academicClassId">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Class:</label>
+                        <input class="form-control" th:value="${academicClass.clazz.name}" readonly>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Group:</label>
+                        <input class="form-control" th:value="${academicClass.classGroup}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Section:</label>
+                        <input class="form-control" th:value="${academicClass.section}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Session (Year):</label>
+                        <input class="form-control" th:value="${academicClass.session}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Quantaa List</h5>
+            <div class="card-body">
+                <div class="col">
+                    <table class="table table-bordered" id="student-list">
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary mb-4">Release</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        (() => {
+            const studentList = /*[[${academicClass.studentList}]]*/'';
+            const currentStudent = /*[[${currentStudent}]]*/'';
+            let flag = false;
+            let index = 0;
+            const el = document.getElementById('student-list');
+            let table = `<tr>
+                               <th>SL</th>
+                               <th>Quantaa ID</th>
+                               <th>Quantaa Name</th>
+                               <th>Quantaa Status</th>
+                           </tr>`;
+            for (const std of studentList) {
+                if (std.status === currentStudent) {
+                    flag = true;
+                    table += `<tr>
+                               <td>${index + 1}</td>
+                               <td>${std.student.studentId}</td>
+                               <input type="hidden" name="students[${index}].studentId" value="${std.student.id}">
+                               <td>${std.student.applicant.nameEn}</td>
+                               <td>
+                                    <input class="form-check-input" type="radio" name="students[${index}].status" id="radio1${index}" value="0" checked>
+                                    <label class="form-check-label" for="radio1${index}">Higher Studying Quanta</label>&nbsp;&nbsp;
+                                    <input class="form-check-input" type="radio" name="students[${index}].status" id="radio2${index}" value="1">
+                                    <label class="form-check-label" for="radio2${index}">Ex-Quantaa</label>&nbsp;&nbsp;
+                                    <input class="form-check-input" type="radio" name="students[${index}].status" id="radio3${index}" value="2">
+                                    <label class="form-check-label" for="radio3${index}">Dropout</label>
+                               </td>
+                           </tr>`;
+                    index++;
+                }
+            }
+            if (flag) {
+                el.innerHTML = table;
+            } else {
+                el.innerHTML = `<div class="text-center">No student added to this class yet</div>`;
+            }
+        })();
+
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${examCenter.id > 0} ? #{exam.center.entry.form.update.title} : #{exam.center.entry.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${examCenter}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Exam Center
+                Information</h5>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label red-star" for="name">Name:<span class="text-danger">*</span></label>
+                        <input id="name" class="form-control" th:field="*{name}">
+                        <span th:if="${#fields.hasErrors('name')}" th:errorclass="error" th:errors="*{name}"></span>
+                        <input type="hidden" th:field="*{id}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Code:<span class="text-danger">*</span></label>
+                        <input class="form-control" th:if="${examCenter.id == null}" th:field="*{code}">
+                        <input class="form-control" th:unless="${examCenter.id == null}" th:field="*{code}" th:value="*{code}">
+                        <span th:if="${#fields.hasErrors('code')}" th:errorclass="error" th:errors="*{code}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-1 mt-4 form-label">Status:</label>
+                    <div class="col-md-5 mt-4">
+                        <input type="radio" id="active" th:field="*{active}" th:value="true">
+                        <label class="me-4" for="active">&nbsp;Active</label>
+                        <input type="radio" id="inactive" th:field="*{active}" th:value="false">
+                        <label for="inactive">&nbsp;Inactive</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">District:<span class="text-danger">*</span></label>
+                        <input class="form-control" id="district" th:field="*{district}">
+                        <span th:if="${#fields.hasErrors('district')}" th:errorclass="error" th:errors="*{district}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Responsible
+                Person Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Responsible Person Name:</label>
+                        <input class="form-control" th:field="*{responsible}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Registration No:</label>
+<!--                        <input class="form-control" th:field="*{registrationNo}">-->
+                        <input class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number:</label>
+                        <input class="form-control" th:field="*{phone}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email:</label>
+                        <input class="form-control" th:field="*{email}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Address:</label>
+                        <input class="form-control" th:field="*{address}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Remarks:</label>
+                        <textarea class="form-control" th:field="*{remarks}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-4"
+                th:value="${examCenter.id > 0} ? 'update' : 'new'"
+                th:text="${examCenter.id > 0} ? 'Update' : 'Save'"></button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+</body>
+</html>

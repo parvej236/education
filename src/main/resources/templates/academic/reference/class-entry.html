@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${class.id > 0} ? #{class.form.update.title} : #{class.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${class}" th:action="${entryLink}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Class
+                Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label red-star">Name:<span class="text-danger">*</span></label>
+                    <div class="col-md-10 mb-1">
+                        <input type="text" id="name" class="form-control" th:field="*{name}">
+                        <input type="hidden" th:field="*{id}">
+                        <span th:if="${#fields.hasErrors('name')}" th:errorclass="error"
+                              th:errors="*{name}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label red-star">Level:<span class="text-danger">*</span></label>
+                    <div class="col-md-10 mb-1">
+                        <input type="text" id="level" class="form-control" th:field="*{level}">
+                        <span th:if="${#fields.hasErrors('level')}" th:errorclass="error"
+                              th:errors="*{level}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 mb-1 form-label">Remarks:</label>
+                    <div class="col-md-10 mb-1">
+                        <textarea type="text" class="form-control" th:field="*{remarks}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary"
+                th:name="action" th:value="${class.id > 0} ? 'update' : 'new'"
+                th:text="${class.id > 0} ? 'Update' : 'Save'"
+                th:if="${menuAuthorizer.canCreateAcademicReference}">
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+</body>
+</html>

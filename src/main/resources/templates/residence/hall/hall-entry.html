@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${hall.id > 0} ? #{hall.form.update.title} : #{hall.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${hall}" th:action="${entryLink}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Hall Information</h5>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label red-star" for="name">Name:<span class="text-danger">*</span></label>
+                        <input id="name" class="form-control" th:field="*{name}">
+                        <input type="hidden" th:field="*{id}">
+                        <span th:if="${#fields.hasErrors('name')}" th:errorclass="error"
+                              th:errors="*{name}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Code:<span class="text-danger">*</span></label>
+                        <input class="form-control" th:field="*{code}">
+                        <span th:if="${#fields.hasErrors('code')}" th:errorclass="error"
+                              th:errors="*{code}"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Residence:<span class="text-danger">*</span></label>
+                        <select id="class" class="form-select" th:field="*{residence.id}">
+                            <option value="">-Please Select-</option>
+                            <option th:each="residence : ${residenceList}" th:value="${residence.id}"
+                                    th:text="${residence.name}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('residence.id')}" th:errorclass="error"
+                              th:errors="*{residence.id}"></span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Remarks:</label>
+                        <textarea class="form-control" th:field="*{remarks}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" th:name="action" th:value="${hall.id > 0} ? 'update' : 'new'"
+                th:text="${hall.id > 0} ? 'Update' : 'Save'" th:if="${menuAuthorizer.canCreateResidenceReference}"></button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+</body>
+</html>

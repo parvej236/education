@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="#{class.promotion.student.shift.title}"></h4>
+<th:block layout:fragment="content">
+    <form class="position-relative" th:object="${studentShift}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header text-primary">Shift From</h5>
+            <div class="card-body">
+                <div class="row mb-2" th:if="${studentShift.id == null}">
+                    <label class="col-md-2 form-label red-star" for="studentSearch">Student Search:</label>
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input class="form-control student-search" id="studentSearch"
+                                   placeholder="Search by name or quantaa id"
+                                   autocomplete="off"
+                                   data-search-url="/admission/get-student-by-name-or-quanta-id?nameOrQuantaaId=">
+                            <span class="input-group-text" role="button"><i class="bi bi-search"></i></span>
+                            <span onclick="clearStudent()" class="input-group-text rounded-end"
+                                  role="button">Clear</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label">Student Name:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="student-name" th:field="*{studentName}" readonly>
+                        <input type="hidden" id="student-row-id" th:field="*{studentRowId}">
+                    </div>
+                    <label class="col-md-2 form-label">Quantaa ID:</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input class="form-control" id="quantaa-id" th:field="*{studentId}" readonly>
+                            <span class="input-group-text rounded-end" role="button"
+                                  onclick="studentProfile()">Details</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label">Institution:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="institution-from" th:field="*{shiftFromInstitution}" readonly>
+                    </div>
+                    <label class="col-md-2 form-label">Class:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="class-from" th:field="*{shiftFromClassInfo}" readonly>
+                        <input type="hidden" id="pre-academic-class" th:field="*{preAcademicClass}">
+                    </div>
+                </div>
+                <div class="row mb-2" th:if="${studentShift.id != null}">
+                    <label class="col-md-2 form-label">Shift By:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" th:field="*{shiftBy}" readonly>
+                    </div>
+                    <label class="col-md-2 form-label">Shift Date:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" th:value="${shiftDate}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Shift To</h5>
+            <div class="card-body">
+
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label red-star">Institution:<span class="text-danger">*</span></label>
+                    <div class="col-md-4">
+                        <select th:if="${studentShift.id == null}" class="form-control"
+                                onchange="loadClassList(this.value); setTextAsValue(this, 'shift-to-institution')">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:value="${institution.id}"
+                                    th:text="${institution.name}"></option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('shiftToInstitution')}" th:errorclass="error"
+                              th:errors="*{shiftToInstitution}"></span>
+                        <input class="form-control" th:type="${studentShift.id == null ? 'hidden' : 'text'}"
+                               id="shift-to-institution" th:field="*{shiftToInstitution}" readonly>
+                    </div>
+                    <label class="col-md-2 form-label red-star">Class:<span class="text-danger">*</span></label>
+                    <div class="col-md-4">
+                        <select th:if="${studentShift.id == null}" class="form-select" id="class-to"
+                                onchange="setTextAsValue(this, 'shift-to-class-info')" th:field="*{newAcademicClass}"
+                                disabled>
+                            <option value="0">-Select Institution First-</option>
+                        </select>
+                        <input class="form-control" th:type="${studentShift.id == null ? 'hidden' : 'text'}"
+                               id="shift-to-class-info" th:field="*{shiftToClassInfo}" readonly>
+                        <span th:if="${#fields.hasErrors('shiftToClassInfo')}" th:errorclass="error"
+                              th:errors="*{shiftToClassInfo}"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label red-star">Cause:<span class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <textarea class="form-control" placeholder="Write Shifting Cause..."
+                                  th:readonly="${studentShift.id != null}"
+                                  th:field="*{cause}"></textarea>
+                        <span th:if="${#fields.hasErrors('cause')}" th:errorclass="error"
+                              th:errors="*{cause}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" th:if="${studentShift.id == null}">Shift</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        let id = null;
+
+        function renderStudent(searchKey, student) {
+            return `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div>${student.applicant.nameEn} - ${student.studentId}</div>
+                        <div>${student.applicant.nameBn}</div>
+                    </div>
+                </div>
+            `
+        }
+
+        function selectStudent(searchKey, student) {
+            id = student.id;
+            document.querySelector('#student-name').value = student.applicant.nameEn;
+            document.querySelector('#quantaa-id').value = student.studentId;
+            document.querySelector('#student-row-id').value = student.id;
+            document.querySelector('#institution-from').value = student.institutionName;
+            document.querySelector('#class-from').value = student.currentAcademicClassInfo;
+            document.querySelector('#pre-academic-class').value = student.currentAcademicClassId;
+            document.querySelector('.student-search').value = "";
+        }
+
+        function clearStudent() {
+            id = null;
+            document.querySelector('#student-name').value = "";
+            document.querySelector('#quantaa-id').value = "";
+            document.querySelector('#student-row-id').value = "";
+            document.querySelector('#institution-from').value = "";
+            document.querySelector('#class-from').value = "";
+            document.querySelector('.student-search').value = "";
+            document.querySelector('#pre-academic-class').value = "";
+            document.querySelector('.student-search').focus();
+        }
+
+        function setTextAsValue(el, id) {
+            if (el.value !== '0') {
+                document.getElementById(id).value = el.options[el.selectedIndex].text;
+            }else{
+                document.getElementById(id).value = '';
+            }
+        }
+
+        function loadClassList(id) {
+            const classEl = document.getElementById("class-to");
+            if (id === "0") {
+                classEl.innerHTML = "<option value='0'>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    classEl.innerHTML = data;
+                });
+            }
+        }
+
+        function studentProfile() {
+            const detailsUrl = /*[[${detailsUrl}]]*/'';
+            if (id != null) {
+                window.open(detailsUrl + '?id=' + id, '_blank');
+            }
+        }
+
+        (() => {
+            id = /*[[${studentShift.studentRowId}]]*/'';
+            if (!id) {
+                document.querySelector('#studentSearch').focus();
+                new AutoComplete(document.querySelector('#studentSearch'), renderStudent, selectStudent);
+            }
+        })();
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+<body>
+<h4 layout:fragment="content-header">Academic Class List</h4>
+<th:block layout:fragment="content">
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th data-column-name='action'>Action</th>
+            <th data-column-name='name' sortable='true'>Name</th>
+            <th data-column-name='level'>Level</th>
+            <th data-column-name='remarks'>Remarks</th>
+        </tr>
+        </thead>
+    </table>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const hasPermission = /*[[${menuAuthorizer.canCreateAcademicReference}]]*/'';
+        const table = new DataTable('#table', {
+            omniPlaceholder: "Search by name or level",
+            filterEnabled: false,
+            formatter: {
+                action: (el, column, rowData) => {
+                    const entryUrl = /*[[${entryUrl}]]*/ '/academic/class-entry';
+                    el.innerHTML = `<a href="${entryUrl}?id=${rowData.id}"
+                    id="editButton" class="btn btn-secondary btn-sm" type="button">
+                    Open
+                    </a>`
+                },
+            },
+            events: {
+                createNew: (e, rowData) => {
+                    if (hasPermission) {
+                        window.location = '/academic/class-entry'
+                    }
+                }
+            },
+            buttonSection: hasPermission ? [
+                {
+                    name: 'createNew',
+                    label: 'Add Class',
+                    classes: 'btn btn-primary'
+                }
+            ] : null
+        });
+    </script>
+</th:block>
+</body>
+
+</html>

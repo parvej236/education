@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+<body>
+<h4 layout:fragment="content-header">Attendance Sheet List</h4>
+<th:block layout:fragment="content">
+
+    <div id="filter" class="m-3">
+        <div class="row mb-3">
+            <input class="form-control" id="filterDate" name="date" placeholder="Search by date">
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="attendanceType">
+                <option value="">Search by attendance type</option>
+                <option th:each="attendanceType : ${attendanceTypes}" th:text="${attendanceType.title}"
+                        th:value="${attendanceType.title}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="institution" onchange="loadClassList(this.value)">
+                <option value="0">Search by institution</option>
+                <option th:each="institution : ${institutionList}" th:text="${institution.name}"
+                        th:value="${institution.id}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="class" name="cls" disabled>
+                <option value="">-Select Institution First-</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="clsGroup">
+                <option value="">Search by group</option>
+                <option th:each="group : ${groupList}" th:value="${group}" th:text="${group}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" name="section">
+                <option value="">Search by section</option>
+                <option th:each="section : ${sectionList}" th:value="${section}" th:text="${section}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <input class="form-control" name="session" placeholder="Search by session" autocomplete="off">
+        </div>
+    </div>
+
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th class="col-md-1" data-column-name='action'>Action</th>
+            <th class="col-md-2" data-column-name='date' sortable="true">Date</th>
+            <th class="col-md-1" data-column-name='type'>Type</th>
+            <th class="col-md-3" data-column-name='institution'>Institution</th>
+            <th class="col-md-2" data-column-name='academicClass.clazz.name'>Class</th>
+            <th class="col-md-2" data-column-name='academicClass.classGroup'>Group</th>
+            <th class="col-md-2" data-column-name='academicClass.section'>Section</th>
+            <th class="col-md-1" data-column-name='academicClass.session'>Session</th>
+        </tr>
+        </thead>
+    </table>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const hasPermission = /*[[${menuAuthorizer.canCreateAcademicAttendance}]]*/'';
+        const table = new DataTable('#table', {
+            omniPlaceholder: "Search attendance sheet",
+            filterEnabled: true,
+            filterSelector: "filter",
+            formatter: {
+                action: (el, column, rowData) => {
+                    const entryUrl = /*[[${entryUrl}]]*/ '';
+                    el.innerHTML = `<a href="${entryUrl}?id=${rowData.id}"
+                    id="editButton" class="btn btn-secondary btn-sm" type="button">Open</a>`
+                },
+            },
+            events: {
+                createNew: (e, rowData) => {
+                    if (hasPermission) {
+                        window.location = '/academic/attendance-sheet-entry'
+                    }
+                }
+            },
+            buttonSection: hasPermission ? [
+                {
+                    name: 'createNew',
+                    label: 'Add Attendance Sheet',
+                    classes: 'btn btn-primary'
+                }
+            ] : null
+        });
+
+        function loadClassList(id) {
+            const classEl = document.getElementById("class");
+            if (id === '0') {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    document.getElementById("class").innerHTML = data;
+                });
+            }
+        }
+
+        (() => {
+            const date = document.getElementById('filterDate');
+            applyDatepicker(date, date.value);
+        })();
+    </script>
+</th:block>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

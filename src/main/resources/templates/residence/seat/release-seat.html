@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Release Seat</h4>
+<th:block layout:fragment="content">
+    <form th:action="${releaseUrl}" th:object="${seatBookingLog}" method="post">
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Seat</h5>
+            <div class="card-body">
+                <div class="row mb-1">
+                    <div class="col-md-3">
+                        <label class="form-label" for="seatCode">Seat Code:</label>
+                        <input id="seatCode" class="form-control" type="text" readonly th:field="*{seat.seatCode}">
+                        <input id="bookingId" type="hidden" th:field="*{id}">
+                        <input id="seatId" type="hidden" th:field="*{seat.id}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="roomCode">Room Code:</label>
+                        <input id="roomCode" class="form-control" type="text" readonly th:field="*{seat.room.code}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="hallName">Hall Name:</label>
+                        <input id="hallName" class="form-control" type="text" readonly
+                               th:field="*{seat.room.hall.name}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="residenceName">Residence Name:</label>
+                        <input id="residenceName" class="form-control" type="text" readonly
+                               th:field="*{seat.room.hall.residence.name}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Student</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentName">Student Name:</label>
+                        <input class="form-control" id="studentName" th:field="*{studentName}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentId">Quantaa ID:</label>
+                        <div class="input-group">
+                            <input class="form-control" id="studentId" th:field="*{studentId}" readonly>
+                            <span class="input-group-text rounded-end" role="button">Details</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label" for="institution">Institution:</label>
+                        <input class="form-control" id="institution" th:field="*{institution}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="studentClass">Class:</label>
+                        <input class="form-control" id="studentClass" th:field="*{studentClass}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Booking</h5>
+            <div class="card-body">
+                <div class="row mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingDate">Booking Date:</label>
+                        <input id="bookingDate" class="form-control" type="text" th:field="*{bookingDate}" readonly>
+                    </div>
+                    <div class="col-md-6" th:if="${seatBookingLog.status == 'booked'}">
+                        <label class="form-label" for="releaseDate">Release Date:<span class="text-danger">*</span></label>
+                        <input id="releaseDate" class="form-control" type="text" th:field="*{releaseDate}">
+                        <span th:if="${#fields.hasErrors('releaseDate')}" th:errorclass="error" th:errors="*{releaseDate}"></span>
+                    </div>
+                    <div class="col-md-6" th:if="${seatBookingLog.status == 'released'}">
+                        <label class="form-label">Release Date:</label>
+                        <input class="form-control" type="text" th:value="${seatBookingLog.releaseDate}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 mt-3">
+            <div class="d-flex justify-content-start">
+                <button type="submit" class="btn btn-lg btn-primary" th:if="${seatBookingLog.status == 'booked' && menuAuthorizer.canReleaseSeat}">Save</button>
+            </div>
+        </div>
+    </form>
+
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        (() => {
+            const releaseDate = document.getElementById("releaseDate");
+            applyDatepicker(releaseDate, releaseDate.value);
+        })();
+
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Education</title>
+    <script type="text/javascript" th:src="@{/resources/js/scripts.js}"></script>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="(${applicant.id > 0} ? #{applicant.form.update.title} : #{applicant.form.create.title})"></h4>
+<div id="content" layout:fragment="content">
+
+    <div class="row mb-3">
+        <div class="col-md-2 text-end">
+            <img th:id="formLogo" th:src="@{/resources/img/science_living.jpg}" alt="unavailable" th:high="110"
+                 th:width="110"/>
+        </div>
+        <div class="col-md-7 text-center">
+            <h2 class="fw-bold">কোয়ান্টাম শিক্ষাসেবা কার্যক্রম</h2>
+            <h3 class="border-top">Quantum Education Service</h3>
+            <h4 class="">Admission Form</h4>
+        </div>
+        <div class="col-md-3 text-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#imageModal"
+                    th:if="${applicant.id > 0}">
+                <img th:id="formImageOld" th:src="@{#}"
+                     th:if="${applicant.imagePath != '' && applicant.imagePath != null}" alt="available"
+                     style="width: 44mm; height: 54mm"/>
+                <img th:id="formImageMale" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail"
+                     th:if="${applicant.gender eq 'Male' && (applicant.imagePath eq null || applicant.imagePath eq '')}"
+                     style="width: 45mm; height: 55mm"/>
+                <img th:id="formImageFemale" th:src="@{/resources/img/dummy_female.jpg}" class="img-thumbnail"
+                     th:if="${applicant.gender eq 'Female' && (applicant.imagePath eq null || applicant.imagePath eq '')}"
+                     style="width: 45mm; height: 55mm"/>
+            </button>
+        </div>
+    </div>
+
+    <form th:object="${applicant}" th:action="${entryLink}" method="post">
+
+        <input id="id" th:type="hidden" th:field="*{id}">
+        <input id="admitted" th:type="hidden" th:field="*{admitted}" th:value="No">
+        <input th:type="hidden" th:field="*{imagePath}" th:id="imagePath">
+
+        <div class="card card-mb-3 mb-4 border-blue-100">
+            <div class="card-header">
+                <h5 class="card-header-custom text-primary d-flex justify-content-between">Applicant's Form Info</h5>
+            </div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Form No:<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{formNo}">
+                        <span th:if="${#fields.hasErrors('formNo')}" th:errorclass="error" th:errors="*{formNo}"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Applied Class:<span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{appliedClass}">
+                            <option value=" "></option>
+                            <option th:each="clazz : ${clazzList}"
+                                    th:value="${clazz.name}"
+                                    th:text="${clazz.name}">
+                            </option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('appliedClass')}" th:errorclass="error"
+                              th:errors="*{appliedClass}"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Session:</label>
+                        <input type="text" class="form-control" th:field="*{session}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Exam Center:<span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{examCenter}">
+                            <option value=" "></option>
+                            <option th:each="examCenter : ${examCenterList}"
+                                    th:value="${examCenter.name}"
+                                    th:text="${examCenter.name}">
+                            </option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('examCenter')}" th:errorclass="error"
+                              th:errors="*{examCenter}"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Apply Date:</label>
+                        <input class="form-control" id="applyDate" th:field="*{applyDate}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Selection:</label><br>
+                            <input type="radio" class="form-check-input me-1" th:field="*{selected}" th:value="true"
+                                   id="selectionYes">
+                            <label class="form-check-label" for="selectionYes">Yes</label>
+                            <input type="radio" class="form-check-input ms-4 me-1" th:field="*{selected}" th:value="false"
+                                   id="selectionNo">
+                            <label class="form-check-label" for="selectionNo">No</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-mb-3 mb-4 border-blue-100">
+            <div class="card-header">
+                <h5 class="card-header-custom text-primary d-flex justify-content-between">Applicant's Information</h5>
+            </div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="nameEn">Name in English:<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nameEn" th:field="*{nameEn}"
+                               placeholder="Full Name in English">
+                        <span th:if="${#fields.hasErrors('nameEn')}" th:errorclass="error" th:errors="*{nameEn}"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="nameBn">Name in Bengali:<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nameBn" th:field="*{nameBn}"
+                               placeholder="Full Name in Bengali">
+                        <span th:if="${#fields.hasErrors('nameBn')}" th:errorclass="error" th:errors="*{nameBn}"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Gender:</label><br>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" th:field="*{gender}" th:value="Male" id="male">
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" th:field="*{gender}" th:value="Female"
+                                   id="female">
+                            <label class="form-check-label" for="female">Female</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="community">Community:</label>
+                        <select id="community" class="form-select" th:field="*{community}">
+                            <option value=" "></option>
+                            <option th:each="community : ${communities}"
+                                    th:value="${community.title}"
+                                    th:text="${community.title}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="religion">Religion:</label>
+                        <select class="form-select" id="religion" th:field="*{religion}">
+                            <option value=" "></option>
+                            <option th:each="religion : ${religions}"
+                                    th:value="${religion.title}"
+                                    th:text="${religion.title}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="birthDate">Date Of Birth: </label>
+                        <input id="birthDate" th:field="*{birthDate}" class="form-control" type="text">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="age">Age: </label>
+                        <input type="text" class="form-control" id="age" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="birthCertificateNumber">Birth Certificate:</label>
+                        <input type="number" class="form-control" placeholder="Birth Certificate Number"
+                               id="birthCertificateNumber" th:field="*{birthCertificateNumber}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3 border-blue-100">
+            <div class="card-header mb-2">
+                <h5 class="card-header-custom text-primary d-flex justify-content-between">Applicant's Address</h5>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title fw-bold">Present Address</h5>
+                <div class="row mb-4">
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label" for="presentCountry">Country: </label>
+                        <select class="form-select" th:field="*{presentCountry}" id="presentCountry">
+                            <option th:each="country : ${countries}" th:value="${country.name}"
+                                    th:text="${country.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label" for="presentDistrict">District: </label>
+                        <select class="form-select" id="presentDistrict" th:field="*{presentDistrict}"
+                                onchange="loadUpazilas(this, true)">
+                            <option value=" "></option>
+                            <option th:each="district : ${districts}" th:data-id="${district.id}"
+                                    th:value="${district.name}" th:text="${district.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label" for="presentUpazila">Upazila: </label>
+                        <select class="form-select" th:field="*{presentUpazila}" id="presentUpazila"
+                                onchange="loadUnions(this, true)"></select>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label" for="presentUnion">Union: </label>
+                        <select class="form-select" th:field="*{presentUnion}" id="presentUnion"></select>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label" for="presentAddress">Address: </label>
+                        <textarea class="form-control" th:field="*{presentAddress}" rows="1"
+                                  id="presentAddress"></textarea>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" for="presentLongitude">Coordinates:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="presentLongitude" placeholder="Longitude"
+                                   aria-label="Longitude">
+                            <input type="text" class="form-control" id="presentLatitude" placeholder="Latitude"
+                                   aria-label="Latitude">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <h5 class="card-title fw-bold">Permanent Address</h5>
+                    <div class="row">
+                        <div class="col-sm-6 mb-2">
+                            <label class="form-label" for="permanentCountry">Country: </label>
+                            <select class="form-select" required th:field="*{permanentCountry}" id="permanentCountry">
+                                <option th:each="country : ${countries}" th:value="${country.name}"
+                                        th:text="${country.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <label class="form-label" for="permanentDistrict">District: </label>
+                            <select class="form-select" id="permanentDistrict" th:field="*{permanentDistrict}"
+                                    onchange="loadUpazilas(this, false)">
+                                <option value='' data-id=''></option>
+                                <option th:each="district : ${districts}" th:data-id="${district.id}"
+                                        th:value="${district.name}" th:text="${district.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <label class="form-label" for="permanentUpazila">Upazila: </label>
+                            <select class="form-select" th:field="*{permanentUpazila}" id="permanentUpazila"
+                                    onchange="loadUnions(this, false)"></select>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <label class="form-label" for="permanentUnion">Union: </label>
+                            <select class="form-select" id="permanentUnion" th:field="*{permanentUnion}"></select>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <label class="form-label" for="permanentAddress">Address: </label>
+                            <textarea class="form-control" rows="1" id="permanentAddress"
+                                      th:field="*{permanentAddress}"></textarea>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="permanentLongitude">Coordinates:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="permanentLongitude" placeholder="Longitude"
+                                       aria-label="Longitude">
+                                <input type="text" class="form-control" id="permanentLatitude" placeholder="Latitude"
+                                       aria-label="Latitude">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="form-label" for="comment">Comment:</label>
+            <div class="col-12">
+                <textarea class="form-control" id="comment" rows="2" th:field="*{comment}"></textarea>
+            </div>
+        </div>
+
+        <div class="modal fade" id="imageModal" data-bs-backdrop="static" tabindex="-1"
+             aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Upload Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img th:id="modalImageOld" th:src="@{#}" th:if="${applicant.imagePath}" th:high="110"
+                             th:width="100"/>
+                        <img th:id="modalImageMale" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail"
+                             th:if="${applicant.gender eq 'Male' && applicant.imagePath eq null}" th:high="110"
+                             th:width="100"/>
+                        <img th:id="modalImageFemale" th:src="@{/resources/img/dummy_female.jpg}" class="img-thumbnail"
+                             th:if="${applicant.gender eq 'Female' && applicant.imagePath eq null}" th:high="110"
+                             th:width="100"/>
+                        <img th:id="newImageData"
+                             th:src="${applicant.gender eq 'Male' ? '/resources/img/dummy_male.jpg' : '/resources/img/dummy_female.jpg' }"
+                             class="img-thumbnail avatar" th:high="110" th:width="100"/>
+                        <br>
+                        <br>
+                        <input class="form-control" id="modalImg" type="file" onchange="convertImgToBase64(event)">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-4" th:name="action"
+                th:value="${applicant.id > 0} ? 'update' : 'new'"
+                th:text="${applicant.id > 0} ? 'Update' : 'Save'"
+                th:if="${menuAuthorizer.canCreateApplicant}">
+        </button>
+
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</div>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function loadUpazilas(event, present) {
+            const districtId = event.options[event.selectedIndex].dataset.id
+            const url = '/upazilas'
+            let upazila = null
+
+            if (present) {
+                upazila = /*[[${applicant.presentUpazila}]]*/ null
+            } else {
+                upazila = /*[[${applicant.permanentUpazila}]]*/ null
+            }
+
+            if (districtId !== undefined) {
+                fetch(generateRequestURL(url, {district: districtId}))
+                    .then(response => response.json())
+                    .then(data => {
+                        const options = []
+                        options.push(`<option value='' data-id=''></option>`)
+                        for (const row of data) {
+                            if (upazila !== null && row.name === upazila) {
+                                options.push(`<option data-id='${row["id"]}' value='${row["name"]}' selected>${row['name']}</option>`)
+                            } else {
+                                options.push(`<option data-id='${row["id"]}' value='${row["name"]}'>${row['name']}</option>`)
+                            }
+                        }
+                        if (present) {
+                            document.querySelector("#presentUpazila").innerHTML = options.join('')
+                        } else {
+                            document.querySelector("#permanentUpazila").innerHTML = options.join('')
+                        }
+                    })
+            }
+        }
+
+        function loadUnions(event, present) {
+            const upazilaId = event.options[event.selectedIndex].dataset.id
+            const url = '/unions'
+            let union = null
+
+            if (present) {
+                union = /*[[${applicant.presentUnion}]]*/ null
+            } else {
+                union = /*[[${applicant.permanentUnion}]]*/ null
+            }
+
+            if (upazilaId !== undefined) {
+                fetch(generateRequestURL(url, {upazila: upazilaId}))
+                    .then(response => response.json())
+                    .then(data => {
+                        const options = []
+                        options.push(`<option value='' data-id=''></option>`)
+                        for (const row of data) {
+                            if (union !== null && union === row.name) {
+                                options.push(`<option data-id='${row["id"]}' value='${row["name"]}' selected>${row['name']}</option>`)
+                            } else {
+                                options.push(`<option data-id='${row["id"]}' value='${row["name"]}'>${row['name']}</option>`)
+                            }
+                        }
+                        if (present) {
+                            document.querySelector("#presentUnion").innerHTML = options.join('')
+                        } else {
+                            document.querySelector("#permanentUnion").innerHTML = options.join('')
+                        }
+                    })
+            }
+        }
+
+        const applicantId = /*[[${applicant.Id}]]*/ null;
+
+        (() => {
+            const url = '/admission/applicant/image/download'
+            const path = /*[[${applicant.imagePath}]]*/ ''
+
+            if (path !== '' && path !== null) {
+                fetch(generateRequestURL(url, {path: path}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.getElementById('formImageOld').src = image.data
+                        document.getElementById('modalImageOld').src = image.data
+                    })
+            }
+
+            const applyDateEl = document.getElementById("applyDate");
+            applyDatepicker(applyDateEl, applyDateEl.value);
+
+            const birthDayEl = document.getElementById("birthDate");
+            applyDatepicker(birthDayEl, birthDayEl.value, null, function () {
+                calculateAge(birthDayEl.value);
+            });
+
+            if (applicantId > 0) {
+                calculateAge(birthDayEl.value);
+            }
+
+        })()
+
+        const presentDistrict = document.getElementById('presentDistrict')
+        loadUpazilas(presentDistrict, true);
+
+        const permanentDistrict = document.getElementById('permanentDistrict')
+        loadUpazilas(permanentDistrict, false);
+
+        setTimeout(function () {
+            const presentUpazila = document.getElementById('presentUpazila')
+            loadUnions(presentUpazila, true);
+            const permanentUpazila = document.getElementById('permanentUpazila')
+            loadUnions(permanentUpazila, false);
+        }, 500)
+
+        let presentCountrySelected = document.getElementById('presentCountry');
+        presentCountrySelected.value = 'Bangladesh';
+
+        let permanentCountrySelected = document.getElementById('permanentCountry');
+        permanentCountrySelected.value = 'Bangladesh';
+
+        function calculateAge(birthDateString) {
+            if (!birthDateString) return;
+
+            let dateParts = birthDateString.split('/');
+            let birthDay = parseInt(dateParts[0]);
+            let birthMonth = parseInt(dateParts[1]) - 1;
+            let birthYear = parseInt(dateParts[2]);
+
+            const today = new Date();
+            let years = today.getFullYear() - birthYear;
+            let months = today.getMonth() - birthMonth;
+            let days = today.getDate() - birthDay;
+
+            if (days < 0) {
+                months--;
+                const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                days += lastMonth.getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            let ageString;
+            if (years < 0) {
+                ageString = 'Not Possible';
+            } else if (years === 0 && months === 0 && days === 0) {
+                ageString = '0 Days (Today)';
+            } else if (years === 0 && months === 0) {
+                ageString = `${days} Days`;
+            } else if (years === 0) {
+                ageString = `${months} Months ${days} Days`;
+            } else {
+                ageString = `${years} Years ${months} Months ${days} Days`;
+            }
+
+            document.getElementById('age').value = ageString;
+        }
+
+        function uploadImage() {
+            let image = {}
+            const id = document.getElementById('id').value
+            image.objId = id
+            image.data = document.getElementById('newImageData').src
+            image.folder = 'applicant/' + id
+            image.name = id + '_applicant_' + Date.now()
+
+            let url = '/admission/applicant/image/upload'
+
+            postForJson(url, image).then(response => {
+                if (response) {
+                    const path = /*[[${applicant.imagePath}]]*/ ''
+                    const gender = /*[[${applicant.gender}]]*/ ''
+
+                    if (path) {
+                        document.getElementById('formImageOld').src = response.data
+                    } else {
+                        if (gender === "Male") {
+                            document.getElementById('formImageMale').src = response.data
+                        } else {
+                            document.getElementById('formImageFemale').src = response.data
+                        }
+                    }
+                    document.getElementById('imagePath').value = response.path
+                }
+            }).catch((error) => {
+                console.error(error)
+            })
+
+            new BSN.Modal('#imageModal').hide()
+        }
+
+        function convertImgToBase64(event) {
+            let file = event.target.files[0]
+            getBase64(file).then(data => {
+                document.getElementById('newImageData').src = data
+            })
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.readAsDataURL(file)
+                reader.onload = () => resolve(reader.result)
+                reader.onerror = error => reject(error)
+            })
+        }
+
+    </script>
+</th:block>
+</body>
+</html>

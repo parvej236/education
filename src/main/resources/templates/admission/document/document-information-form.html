@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="${documents.id > 0} ? #{document.information.form.update.title} : #{document.information.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${documents}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex justify-content-between">Document
+                Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label red-star">Document Code:<span class="text-danger">*</span></label>
+                        <input class="form-control" id="documentCode" th:if="${documents.id == null}" th:field="*{documentCode}">
+                        <input class="form-control" th:unless="${documents.id == null}" th:field="*{documentCode}"
+                               th:value="*{documentCode}">
+                        <span th:if="${#fields.hasErrors('documentCode')}" th:errorclass="error" th:errors="*{documentCode}"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label red-star" for="documentName">Document Name:<span class="text-danger">*</span></label>
+                        <input id="documentName" class="form-control" th:field="*{documentName}">
+                        <span th:if="${#fields.hasErrors('documentName')}" th:errorclass="error" th:errors="*{documentName}"></span>
+                        <input type="hidden" th:field="*{id}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label red-star">Remarks: </label>
+                        <textarea class="form-control" th:field="*{remarks}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mb-4" th:name="action"
+                th:value="${documents.id > 0} ? 'update' : 'new'"
+                th:text="${documents.id > 0} ? 'Update' : 'Save'"
+                th:if="${menuAuthorizer.canCreateDocument}">
+        </button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Education</title>
+<body>
+<h4 layout:fragment="content-header">Student List</h4>
+<th:block layout:fragment="content">
+
+    <div id="filter" class="m-3">
+        <div class="row mb-3">
+            <select class="form-select" name="institution" onchange="loadClassList(this.value)">
+                <option value="0">Search by institution</option>
+                <option th:each="institution : ${institutionList}" th:text="${institution.name}"
+                        th:value="${institution.id}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="class" name="clazz" disabled>
+                <option value="">-Select Institution First-</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <input type="text" name="session" class="form-control" placeholder="Type Session...">
+        </div>
+        <div class="row mb-3">
+            <select name="gender" class="form-select">
+                <option value="" selected>Select Gender...</option>
+                <option value="Male" name="gender">Male</option>
+                <option value="Female" name="gender">Female</option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select name="religion" class="form-control">
+                <option value="" selected>Select Religion...</option>
+                <option th:each="religion : ${religionList}" th:text="${religion.title}"
+                        th:value="${religion.title}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select name="community" class="form-control">
+                <option value="" selected>Select Community...</option>
+                <option th:each="community : ${communityList}" th:text="${community.title}"
+                        th:value="${community.title}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select name="examCenter" class="form-control">
+                <option value="" selected>Select Exam Center...</option>
+                <option th:each="examCenter : ${examCenterList}" th:text="${examCenter.name}"
+                        th:value="${examCenter.name}"></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="district" name="district" onchange="loadUpazila(this)">
+                <option value="">Select District...</option>
+                <option th:each="district:${districts}"
+                        th:value="${district.name}"
+                        th:text="${district.name}"
+                        th:data-id="${district.id}"
+                ></option>
+            </select>
+        </div>
+        <div class="row mb-3">
+            <select class="form-select" id="upazila" name="upazila">
+                <option value="">Select Upazila...</option>
+            </select>
+        </div>
+    </div>
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th data-column-name='action' style="width:64px;">Action</th>
+            <th data-column-name='studentId'>Quantaa ID</th>
+            <th data-column-name='applicant.nameEn'>Name</th>
+            <th data-column-name='applicant.gender'>Gender</th>
+            <th data-column-name='currentAcademicClassInfo'>Academic Class</th>
+            <th data-column-name='status'>Status</th>
+        </tr>
+        </thead>
+    </table>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        const table = new DataTable('#table', {
+            omniPlaceholder: 'Type name or quantaa',
+            sortColumn: "studentId",
+            showDownloadButton: false,
+            loaderText: 'Loading student list...',
+            noRecordText: 'No records found in student',
+            filterSelector: "filter",
+            filterEnabled: true,
+
+            formatter: {
+                action: (el, column, rowData) => {
+                    const editUrl = /*[[${openUrl}]]*/ '/admission/update-student'
+                    el.innerHTML = `<a href="${editUrl}?id=${rowData.id}" id="myDropdown" class="btn btn-secondary btn-sm" type="button">Open</a>`
+                },
+            },
+        });
+
+        function loadClassList(id) {
+            const classEl = document.getElementById("class");
+            if (id === '0') {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    document.getElementById("class").innerHTML = data;
+                });
+            }
+        }
+
+        function loadUpazila(el){
+            const upazilasByDistrict = /*[[${upazilasByDistrict}]]*/'';
+            const districtId = el.options[el.selectedIndex].dataset.id;
+            const url = upazilasByDistrict + '?district=' + districtId;
+
+            fetch(url).then(response => response.json()).then(data => {
+                const options = [];
+                const upazilaEl = document.getElementById('upazila');
+                options.push('<option value="">Select Upazila...</option>');
+
+                data.forEach(upazila => {
+                    options.push(`<option value="${upazila.name}">${upazila.name}</option>`);
+                });
+                upazilaEl.innerHTML = options.join('');
+            });
+        }
+    </script>
+</th:block>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+<body>
+<h4 layout:fragment="content-header">Student Shift Log</h4>
+<th:block layout:fragment="content">
+    <table id='table' th:attr="data-url=${searchUrl}">
+        <thead>
+        <tr>
+            <th data-column-name='action'>Action</th>
+<!--            <th data-column-name='date'>Shift Date</th>-->
+<!--            <th data-column-name='shiftBy'>Shift By</th>-->
+            <th data-column-name='studentId'>Quantaa Id</th>
+            <th data-column-name='studentName'>Student Name</th>
+            <th data-column-name='shiftInfo'>Shift Info</th>
+            <th data-column-name='cause'>Cause</th>
+        </tr>
+        </thead>
+    </table>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const table = new DataTable('#table', {
+            omniPlaceholder: "Search by student name or id",
+            filterEnabled: false,
+            formatter: {
+                action: (el, column, rowData) => {
+                    const entryUrl = /*[[${entryUrl}]]*/ '/academic/shift-student';
+                    el.innerHTML = `<a href="${entryUrl}?id=${rowData.id}" class="btn btn-secondary" type="button">Open</a>`
+                },
+                shiftInfo: (el, column, rowData) => {
+                    el.innerText = `From: ${rowData.shiftFromClassInfo}
+                                    To: ${rowData.shiftToClassInfo}`;
+                },
+                // date: (el, column, rowData) => {
+                //     el.innerText = `${rowData.createdAt.split(" ")[0].replaceAll("/", "-")}`;
+                // },
+            },
+            events: {
+                createNew: () => {
+                    window.location = '/academic/shift-student'
+                }
+            },
+            buttonSection: [
+                {
+                    name: 'createNew',
+                    label: 'Shift Student',
+                    classes: 'btn btn-primary'
+                }
+            ]
+        });
+    </script>
+</th:block>
+</body>
+
+</html>

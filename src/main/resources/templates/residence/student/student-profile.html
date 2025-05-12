@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Student Profile</h4>
+<th:block layout:fragment="content">
+    <div>
+        <div class="row mb-3">
+            <div class="col-3">
+                <img th:id="formImageOld" th:src="@{#}" th:if="${student.applicant.imagePath}" alt="available"
+                     style="width: 44mm; height: 54mm; border: 2px solid #333"/>
+                <img th:id="formImageMale" th:src="@{/resources/img/dummy_male.jpg}" class="img-thumbnail"
+                     th:if="${student.applicant.gender eq 'Male' && student.applicant.imagePath eq null}"
+                     style="width: 45mm; height: 55mm"/>
+                <img th:id="formImageFemale" th:src="@{/resources/img/dummy_female.jpg}" class="img-thumbnail"
+                     th:if="${student.applicant.gender eq 'Female' && student.applicant.imagePath eq null}"
+                     style="width: 45mm; height: 55mm"/>
+            </div>
+            <div class="col-9">
+                <div class="row mb-2">
+                    <div class="fw-bold" id="studentInfo"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Academic Class History</h5>
+            <div class="card-body">
+                <div class="col">
+                    <table class="col table table-bordered">
+                        <tr>
+                            <th class="text-center">SL.</th>
+                            <th>Institution</th>
+                            <th class="text-center">Class</th>
+                            <th class="text-center">Group</th>
+                            <th class="text-center">Section</th>
+                            <th class="text-center">Session</th>
+                        </tr>
+                        <tr th:each="academicClass : ${academicClassList}">
+                            <td class="text-center" th:text="${academicClassStat.index + 1}"></td>
+                            <td th:text="${academicClass.institution.name}"></td>
+                            <td class="text-center" th:text="${academicClass.clazz.name}"></td>
+                            <td class="text-center"
+                                th:text="${academicClass.classGroup == '' ? '-' : academicClass.classGroup}"></td>
+                            <td class="text-center"
+                                th:text="${academicClass.section == null ? '-' : academicClass.section}"></td>
+                            <td class="text-center" th:text="${academicClass.session}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        (() => {
+            const url = '/admission/applicant/image/download';
+            const student = /*[[${student}]]*/'';
+            const path = student.applicant.imagePath;
+
+            if (student) {
+                fetch(generateRequestURL(url, {path: path}))
+                    .then(response => response.json())
+                    .then(image => {
+                        document.getElementById('formImageOld').src = image.data;
+                    })
+                document.getElementById('studentInfo').innerHTML = student.studentInfo;
+            }
+        })();
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,32 @@
+services:
+   education:
+      container_name: education
+      build:
+         context: ~/projects/microservices/education
+         dockerfile: Dockerfile
+         args:
+            JAR_FILE: education.jar
+      image: quantum/education:${VERSION:-latest}
+      volumes:
+         - /file:/file
+      ports:
+         - 8151:8151
+         - 8551:8551
+      networks:
+         - servicenet
+      extra_hosts:
+         - auth.qict.org:${HOST_IP}
+         - user.qict.org:${HOST_IP}
+         - education.qict.org:${HOST_IP}
+      environment:
+         - TZ=Asia/Dhaka
+         - DB_URL=${DB_URL}
+         - DB_USER=${DB_USER}
+         - DB_PASS=${DB_PASS}
+         - DOMAIN_NAME=${DOMAIN_NAME}
+         - AUTH_URL=${AUTH_URL}
+         - USER_URL=${USER_URL}
+         - RESOURCE_API_URL=${RESOURCE_API_URL}
+
+networks:
+   servicenet: null

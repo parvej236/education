@@ -1,0 +1,62 @@
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/report}">
+<head>
+    <title>Applicant List</title>
+</head>
+<body>
+<div id="content" layout:fragment="content">
+
+    <div th:if="${reportData.result.data != null && #lists.size(reportData.result.data) > 0}">
+        <table style="width:100%">
+            <thead>
+            <tr th:class="text-center">
+                <th>SL</th>
+                <th th:width="80">Image</th>
+                <th>Applicant Info</th>
+                <th>Academic Info</th>
+                <th>Address</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${reportData.result.data}">
+                <td th:class="text-center">
+                    <span th:text="${itemStat.count}"></span>
+                </td>
+                <td>
+                    <img th:unless="${item.imagePath eq null}" th:src="${item.base64}" alt="picture" th:high="80" th:width="80">
+                    <img th:if="${item.imagePath eq null && item.gender eq 'Male'}" th:src="@{/resources/img/dummy_male.jpg}" alt="picture" th:high="80" th:width="80">
+                    <img th:if="${item.imagePath eq null && item.gender eq 'Female'}" th:src="@{/resources/img/dummy_female.jpg}" alt="picture" th:high="80" th:width="80">
+                </td>
+                <td>
+                    <span class="ms-2">Name: <b th:text="${item.nameEn}"></b></span><br>
+                    <span class="ms-2">Gender: <b th:text="${item.gender}"></b></span><br>
+                    <span class="ms-2">Religion: <b th:text="${item.religion}"></b></span><br>
+                    <span class="ms-2">Community: <b th:text="${item.community}"></b></span>
+                </td>
+                <td>
+                    <span class="ms-2">Form No.: <b th:text="${item.formNo}"></b></span><br>
+                    <span class="ms-2">Class: <b th:text="${item.appliedClass}"></b></span><br>
+                    <span class="ms-2">Session: <b th:text="${item.session}"></b></span><br>
+                    <span class="ms-2">Center: <b th:text="${item.examCenter}"></b></span>
+                </td>
+                <td>
+                    <span class="ms-2">Address: <b th:text="${item.presentAddress}"></b></span><br>
+                    <span class="ms-2">Union: <b th:text="${item.presentUnion}"></b></span><br>
+                    <span class="ms-2">Thana: <b th:text="${item.presentUpazila}"></b></span><br>
+                    <span class="ms-2">District: <b th:text="${item.presentDistrict}"></b></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:unless="${reportData.result.data != null && #lists.size(reportData.result.data) > 0}" class="notfound">
+        <div class="mt-5">
+            <h3 class="text-danger text-center">Nothing Found to Display</h3>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

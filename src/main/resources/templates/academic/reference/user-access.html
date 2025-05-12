@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">User Access</h4>
+<th:block layout:fragment="content">
+    <form th:object="${userAccess}" th:action="${entryUrl}" method="post">
+
+        <div class="card mb-3 border-blue-100">
+            <div class="card-header card-header-custom text-primary d-flex">
+                <h5 class="me-4">User Details</h5>
+                <span th:if="${#fields.hasErrors('userId')}" th:errorclass="error" th:errors="*{userId}"></span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label red-star" for="userSearch">User Search:</label>
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input class="form-control user-search" id="userSearch"
+                                   placeholder="Search by name, reg. or phone"
+                                   autocomplete="off"
+                                   data-search-url="/academic/users-by-name-reg-or-phone?nameRegOrPhone=">
+                            <span class="input-group-text" role="button"><i class="bi bi-search"></i></span>
+                            <span onclick="clearUser()" class="input-group-text rounded-end"
+                                  role="button">Clear</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label" for="name">Name:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="name" th:field="*{name}" readonly>
+                        <input type="hidden" id="userId" th:field="*{userId}">
+                        <input type="hidden" id="id" th:field="*{id}">
+                    </div>
+                    <label class="col-md-2 form-label" for="registration">Reg. No.:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="registration" th:field="*{registrationNumber}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-md-2 form-label" for="email">E-mail:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="email" th:field="*{email}" readonly>
+                    </div>
+                    <label class="col-md-2 form-label" for="phone">Phone:</label>
+                    <div class="col-md-4">
+                        <input class="form-control" id="phone" th:field="*{mobileNumber}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-2">
+            <h5 class="card-header text-primary">Access Institutions</h5>
+            <div class="card-body">
+                <table class="table table-bordered" id="institution-list">
+                    <tr>
+                        <th class="d-flex justify-content-center align-items-center">
+                            <input class="form-check-input" type="checkbox" onclick="selectAllInstitution(this.checked)">
+                        </th>
+                        <th>Institution</th>
+                        <th>Code</th>
+                        <th>Responsible Person</th>
+                        <th>Address</th>
+                    </tr>
+                    <tr th:each="institution : ${institutionList}">
+                        <td class="d-flex justify-content-center align-items-center">
+                            <input class="form-check-input" type="checkbox"
+                                   th:field="*{institutions[__${institutionStat.index}__].isAccessed}">
+                            <input type="hidden" th:name="|institutions[${institutionStat.index}].institution.id|"
+                                   th:value="${institution.id}">
+                        </td>
+                        <td th:text="${institution.name}"></td>
+                        <td th:text="${institution.code}"></td>
+                        <td th:text="${institution.responsiblePerson}"></td>
+                        <td th:text="${institution.address}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-2">
+            <h5 class="card-header text-primary">Access Residences</h5>
+            <div class="card-body">
+                <table class="table table-bordered" id="residence-list">
+                    <tr>
+                        <th class="d-flex justify-content-center align-items-center">
+                            <input class="form-check-input" type="checkbox" onclick="selectAllResidence(this.checked)">
+                        </th>
+                        <th>Residence</th>
+                        <th>Code</th>
+                        <th>Responsible Person</th>
+                        <th>Address</th>
+                    </tr>
+                    <tr th:each="residence : ${residenceList}">
+                        <td class="d-flex justify-content-center align-items-center">
+                            <input class="form-check-input" type="checkbox"
+                                   th:field="*{residences[__${residenceStat.index}__].isAccessed}">
+                            <input type="hidden" th:name="|residences[${residenceStat.index}].residence.id|"
+                                   th:value="${residence.id}">
+                        </td>
+                        <td th:text="${residence.name}"></td>
+                        <td th:text="${residence.code}"></td>
+                        <td th:text="${residence.responsiblePerson}"></td>
+                        <td th:text="${residence.address}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-3">Save</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function renderUser(searchKey, user) {
+            return `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div>${user.name} - ${user.registrationNumber}</div>
+                        <div>${user.mobileNumber}</div>
+                        <div>${user.email}</div>
+                    </div>
+                </div>
+            `
+        }
+
+        function selectUser(searchKey, user) {
+            isExist(user.id).then(res => {
+                if (res === 'true') {
+                    window.location.href = "/academic/user-access?userId=" + user.id;
+                } else {
+                    selectAllInstitution(false);
+                    selectAllResidence(false);
+                }
+            });
+            document.querySelector('#id').value = "";
+            document.querySelector('#name').value = user.name;
+            document.querySelector('#userId').value = user.id;
+            document.querySelector('#registration').value = user.registrationNumber;
+            document.querySelector('#email').value = user.email;
+            document.querySelector('#phone').value = user.mobileNumber;
+            document.querySelector('.user-search').value = "";
+        }
+
+        function clearUser() {
+            selectAllInstitution(false);
+            selectAllResidence(false);
+            document.querySelector('#id').value = "";
+            document.querySelector('#name').value = "";
+            document.querySelector('#userId').value = "";
+            document.querySelector('#registration').value = "";
+            document.querySelector('#email').value = "";
+            document.querySelector('#phone').value = "";
+            document.querySelector('.user-search').value = "";
+            document.querySelector('.user-search').focus();
+        }
+
+        function selectAllInstitution(check) {
+            const rows = document.getElementById('institution-list').querySelectorAll("input[type='checkbox']");
+            for (const row of rows) {
+                row.checked = check;
+            }
+        }
+
+        function selectAllResidence(check) {
+            const rows = document.getElementById('residence-list').querySelectorAll("input[type='checkbox']");
+            for (const row of rows) {
+                row.checked = check;
+            }
+        }
+
+        async function isExist(userId) {
+            const existCheckUrl = /*[[${existCheckUrl}]]*/'';
+            return (await fetch(existCheckUrl + '?userId=' + userId)).text();
+        }
+
+        (() => {
+            document.querySelector('#userSearch').focus();
+            new AutoComplete(document.querySelector('#userSearch'), renderUser, selectUser);
+        })();
+    </script>
+</th:block>
+</body>
+</html>

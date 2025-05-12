@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header">Examination Mark Entry</h4>
+<th:block layout:fragment="content">
+    <form th:action="${entryUrl}" th:object="${markSheet}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Class Information</h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Institution:</label>
+                        <input class="form-control" th:value="${markSheet.academicClass.institution.name}" readonly>
+                        <input type="hidden" th:field="*{id}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label red-star">Class:</label>
+                        <input class="form-control" id="classInfo" readonly>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Subject:</label>
+                        <input class="form-control" th:value="${markSheet.subject.name}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Exam:</label>
+                        <input class="form-control" th:value="${markSheet.exam.name}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">Examination Marks</h5>
+            <div class="card-body">
+                <div class="col">
+                    <table class="table table-bordered" id="student-list">
+                    </table>
+                    <span th:if="${#fields.hasErrors('studentMarks')}" th:errorclass="error"
+                          th:errors="*{studentMarks}"></span>
+                </div>
+            </div>
+        </div>
+
+        <button th:if="${markSheet.status == null && menuAuthorizer.canManageExamMarkSheet}" type="submit" class="btn btn-primary mb-4" name="action" value="0">Save</button>
+        <button th:if="${markSheet.status == 1 && menuAuthorizer.canManageExamMarkSheet}" type="submit" class="btn btn-primary mb-4" name="action" value="1">Update</button>
+        <button th:if="${markSheet.status == 1 && menuAuthorizer.canManageExamMarkSheet}" type="submit" class="btn btn-success mb-4 ms-2" name="action" value="2">Submit</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        function classInfo() {
+            const academicClass = /*[[${markSheet.academicClass}]]*/'';
+            const el = document.getElementById('classInfo');
+            if (academicClass.classGroup === "" || academicClass.section === "") {
+                if (academicClass.classGroup === "" && academicClass.section === "") {
+                    el.value = `${academicClass.clazz.name} (${academicClass.session})`
+                }
+
+                if (academicClass.classGroup === "" && academicClass.section !== "") {
+                    el.value = `${academicClass.clazz.name}, ${academicClass.section} (${academicClass.session})`
+                }
+
+                if (academicClass.classGroup !== "" && academicClass.section === "") {
+                    el.value = `${academicClass.clazz.name}, ${academicClass.classGroup} (${academicClass.session})`
+                }
+            } else {
+                el.value = `${academicClass.clazz.name}, ${academicClass.classGroup}, ${academicClass.section} (${academicClass.session})`
+            }
+        }
+
+        (() => {
+            const studentList = /*[[${markSheet.academicClass.studentList}]]*/'';
+            const studentMarks = /*[[${markSheet.studentMarks}]]*/'';
+            const currentStudent = /*[[${currentStudent}]]*/'';
+            const status = /*[[${status}]]*/'';
+            let flag = false;
+            let index = 0;
+            const el = document.getElementById('student-list');
+            let table = `<tr>
+                               <th class="text-center">SL</th>
+                               <th>Quantaa Name</th>
+                               <th>Quantaa ID</th>
+                               <th>Marks</th>
+                           </tr>`;
+
+            if (status === null) {
+                for (const std of studentList) {
+                    if (std.status === currentStudent) {
+                        flag = true;
+                        table += `<tr>
+                               <td class="align-middle text-center">${index + 1}</td>
+                               <input type="hidden" value="${std.student.id}" name="studentMarks[${index}].studentId">
+                               <td class="align-middle">${std.student.applicant.nameEn}</td>
+                               <input type="hidden" value="${std.student.applicant.nameEn}" name="studentMarks[${index}].studentName">
+                               <td class="align-middle">${std.student.studentId}</td>
+                               <input type="hidden" value="${std.student.studentId}" name="studentMarks[${index}].quantaaId">
+                               <td>
+                                    <input class="form-control" name="studentMarks[${index}].marks">
+                               </td>
+                           </tr>`;
+                        index++;
+                    }
+                }
+            } else if (status === 1) {
+                flag = true;
+                for (const studentMark of studentMarks) {
+                    table += `<tr>
+                               <td class="align-middle text-center">${index + 1}</td>
+                               <input type="hidden" value="${studentMark.id}" name="studentMarks[${index}].id">
+                               <input type="hidden" value="${studentMark.studentId}" name="studentMarks[${index}].studentId">
+                               <td class="align-middle">${studentMark.studentName}</td>
+                               <input type="hidden" value="${studentMark.studentName}" name="studentMarks[${index}].studentName">
+                               <td class="align-middle">${studentMark.quantaaId}</td>
+                               <input type="hidden" value="${studentMark.quantaaId}" name="studentMarks[${index}].quantaaId">
+                               <td>
+                                    <input class="form-control" value="${studentMark.marks}" name="studentMarks[${index}].marks">
+                               </td>
+                           </tr>`;
+                    index++;
+                }
+            } else {
+                flag = true;
+                for (const studentMark of studentMarks) {
+                    table += `<tr>
+                               <td class="text-center">${index + 1}</td>
+                               <input type="hidden" value="${studentMark.studentId}" >
+                               <td>${studentMark.studentName}</td>
+                               <input type="hidden" value="${studentMark.studentName}" >
+                               <td>${studentMark.quantaaId}</td>
+                               <input type="hidden" value="${studentMark.quantaaId}" >
+                               <td>${studentMark.marks}</td>
+                           </tr>`;
+                    index++;
+                }
+            }
+
+            if (flag) {
+                el.innerHTML = table;
+            } else {
+                el.innerHTML = `<div class="text-center">No student added to this class yet</div>`;
+            }
+            classInfo();
+        })();
+
+    </script>
+</th:block>
+</body>
+</html>

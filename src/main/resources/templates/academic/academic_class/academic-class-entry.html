@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xml:lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="#{label.education}"></title>
+</head>
+<body>
+<h4 layout:fragment="content-header"
+    th:text="(${academicClass.id > 0}) ? #{class.promotion.form.info.title} : #{class.promotion.form.create.title}"></h4>
+<th:block layout:fragment="content">
+    <form th:object="${academicClass}" th:action="${entryUrl}" method="post">
+        <div class="card mb-3 border-blue-100">
+            <div class="card-header card-header-custom text-primary d-flex">
+                <h5 class="me-4">Class Information</h5>
+                <span th:if="${#fields.hasErrors('institution.id')}" th:errorclass="error"
+                      th:errors="*{institution.id}"></span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label red-star" for="institution">Institution:<span class="text-danger">*</span></label>
+                        <select id="institution" class="form-select" th:if="${academicClass.id == null}"
+                                th:field="*{institution.id}" onchange="loadClassList(this.value)">
+                            <option value="0">-Please Select-</option>
+                            <option th:each="institution : ${institutionList}" th:text="${institution.name}"
+                                    th:value="${institution.id}"></option>
+                        </select>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.institution.name}" readonly>
+                        <span th:if="${#fields.hasErrors('institution')}" th:errorclass="error"
+                              th:errors="*{institution.id}"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star" for="class">Class:<span class="text-danger">*</span></label>
+                        <select id="class" class="form-select" th:if="${academicClass.id == null}"
+                                th:field="*{clazz.id}" disabled>
+                            <option value="0">-Select Institution First-</option>
+                        </select>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.clazz.name}" readonly>
+                        <span th:if="${#fields.hasErrors('clazz')}" th:errorclass="error"
+                              th:errors="*{clazz}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label" for="group">Group:</label>
+                        <select id="group" class="form-select" th:if="${academicClass.id == null}"
+                                th:field="*{classGroup}">
+                            <option value="">-Please Select-</option>
+                            <option th:each="group : ${groupList}" th:value="${group}" th:text="${group}"></option>
+                        </select>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.classGroup}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="section">Section:</label>
+                        <select id="section" class="form-select" th:if="${academicClass.id == null}"
+                                th:field="*{section}">
+                            <option value="">-Please Select-</option>
+                            <option th:each="section : ${sectionList}" th:value="${section}"
+                                    th:text="${section}"></option>
+                        </select>
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.section}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label red-star" for="session">Session(Year):<span class="text-danger">*</span></label>
+                        <input id="session" class="form-control" th:if="${academicClass.id == null}"
+                               th:field="*{session}">
+                        <input class="form-control" th:unless="${academicClass.id == null}"
+                               th:value="${academicClass.session}" readonly>
+                        <span th:if="${#fields.hasErrors('session')}" th:errorclass="error"
+                              th:errors="*{session}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${academicClass.id != null && currentStudentList.size() != 0}" class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Current Student List</h5>
+            <div class="card-body">
+                <div class="col">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>SL</th>
+                            <th>Quantaa ID</th>
+                            <th>Quantaa Name</th>
+                            <th>Gender</th>
+                            <th>Quantaa Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                        <tr th:each="std : ${currentStudentList}">
+                            <td th:text="${stdStat.index + 1}"></td>
+                            <td th:text="${std.student.studentId}"></td>
+                            <td th:text="${std.student.applicant.nameEn}"></td>
+                            <td th:text="${std.student.applicant.gender}"></td>
+                            <td th:text="${std.status}"></td>
+                            <td th:text="${std.remarks}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${academicClass.id != null && othersStudentList.size() != 0}" class="card mb-3 border-blue-100">
+            <h5 class="card-header card-header-custom text-primary d-flex">Others Student List</h5>
+            <div class="card-body">
+                <div class="col">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>SL</th>
+                            <th>Quantaa ID</th>
+                            <th>Quantaa Name</th>
+                            <th>Gender</th>
+                            <th>Quantaa Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                        <tr th:each="std : ${othersStudentList}">
+                            <td th:text="${stdStat.index + 1}"></td>
+                            <td th:text="${std.student.studentId}"></td>
+                            <td th:text="${std.student.applicant.nameEn}"></td>
+                            <td th:text="${std.student.applicant.gender}"></td>
+                            <td th:text="${std.status}"></td>
+                            <td th:text="${std.remarks}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" th:if="${academicClass.id == null}">Save</button>
+    </form>
+    <th:block th:replace="common/toast.html :: toast"/>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        function loadClassList(id) {
+            const classEl = document.getElementById("class");
+            if (id === '0') {
+                classEl.innerHTML = "<option value=''>-Select Institution First-</option>";
+                classEl.setAttribute('disabled', 'true');
+            } else {
+                let url = /*[[${classList}]]*/'';
+                url = url.replace('{id}', id);
+                fetch(url).then(response => response.text()).then(data => {
+                    classEl.removeAttribute('disabled');
+                    document.getElementById("class").innerHTML = data;
+                });
+            }
+        }
+
+        (() => {
+            document.getElementById("session").value = new Date().getFullYear();
+        })();
+    </script>
+</th:block>
+</body>
+</html>
